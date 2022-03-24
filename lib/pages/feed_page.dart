@@ -6,7 +6,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../models/post_model.dart';
 
 class FeedPage extends StatefulWidget {
-  const FeedPage({Key? key}) : super(key: key);
+  Post? post;
+  PageController pageController;
+  FeedPage({this.post, required this.pageController,Key? key}) : super(key: key);
 
   @override
   State<FeedPage> createState() => _FeedPageState();
@@ -36,6 +38,20 @@ class _FeedPageState extends State<FeedPage> {
         fullName: "Nurulloh Abduvohidov")
   ];
 
+  void updatePosts() {
+    if (widget.post != null) {
+      setState(() {
+        posts.insert(0, widget.post!);
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    updatePosts();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,23 +73,21 @@ class _FeedPageState extends State<FeedPage> {
           ],
         ),
         body: Glow(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                GridView.builder(
-                    itemCount: posts.length,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      mainAxisSpacing: 10,
-                      childAspectRatio: 1,
-                      crossAxisCount: 1,
-                    ),
-                    itemBuilder: (context, index) {
-                      return FeedWidget(post: posts[index]);
-                    })
-              ],
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  ListView.builder(
+                      itemCount: posts.length,
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return FeedWidget(post: posts[index]);
+                      })
+                ],
+              ),
             ),
           ),
         ));

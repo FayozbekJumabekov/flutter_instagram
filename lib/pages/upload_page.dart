@@ -2,11 +2,15 @@ import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_instagram/models/post_model.dart';
+import 'package:flutter_instagram/pages/feed_page.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/log_service.dart';
 
 class UploadPage extends StatefulWidget {
-  const UploadPage({Key? key}) : super(key: key);
+  PageController pageController;
+
+   UploadPage({required this.pageController,Key? key}) : super(key: key);
 
   @override
   State<UploadPage> createState() => _UploadPageState();
@@ -15,6 +19,8 @@ class UploadPage extends StatefulWidget {
 class _UploadPageState extends State<UploadPage> {
   File? image;
   final picker = ImagePicker();
+  TextEditingController captionController = TextEditingController();
+
 
   /// Get Image from local device
   Future<void> _getImage(ImageSource imageSource) async {
@@ -26,6 +32,14 @@ class _UploadPageState extends State<UploadPage> {
       });
     } else {
       Log.e('No file selected');
+    }
+  }
+
+  void uploadPost(){
+    if(image != null){
+      Post post = Post(id: '2', image: image,postImage: '', caption: captionController.text.trim(), createdDate: DateTime.now().toString(), isLiked: true, isMine: false, fullName: "Doniyor Ko'chimov");
+      widget.pageController.jumpToPage(0);
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>FeedPage(post: post,pageController: widget.pageController,)));
     }
   }
 
@@ -42,7 +56,9 @@ class _UploadPageState extends State<UploadPage> {
         ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              uploadPost();
+            },
             icon: Icon(Icons.post_add),
             color: Colors.purple,
           )
@@ -92,6 +108,7 @@ class _UploadPageState extends State<UploadPage> {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 child: TextField(
+                  controller: captionController,
                   cursorColor: Colors.grey,
                   decoration: InputDecoration(
                       hintText: "Caption".tr(),
@@ -121,7 +138,6 @@ class _UploadPageState extends State<UploadPage> {
                 height: 10,
               ),
 
-              /// Buttons
               /// From Gallery
               ListTile(
                   leading: Icon(CupertinoIcons.photo_fill_on_rectangle_fill),

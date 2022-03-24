@@ -1,8 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instagram/pages/sign_up_page.dart';
 
+import '../services/auth_service.dart';
+import '../services/log_service.dart';
+import '../services/prefs_service.dart';
 import 'control_page.dart';
 
 class SignInPage extends StatefulWidget {
@@ -14,6 +19,31 @@ class SignInPage extends StatefulWidget {
 }
 
 class _SignInPageState extends State<SignInPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool hidePassword = true;
+
+  void _doSignIn(BuildContext context) {
+    String email = _emailController.text.toString().trim();
+    String password = _passwordController.text.toString().trim();
+    AuthenticationService.signInUser(context, email, password).then((value) => {
+          getUser(value),
+        });
+  }
+
+  void getUser(User? user) async {
+    if (user != null) {
+      Prefs.store(StorageKeys.UID, user.uid);
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => ControlPage()));
+    } else {
+      if (kDebugMode) {
+        print("Null response");
+      }
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,6 +84,7 @@ class _SignInPageState extends State<SignInPage> {
                           color: Colors.grey.shade200,
                           border: Border.all(color: Colors.grey.shade300)),
                       child: TextField(
+                        controller: _emailController,
                         cursorColor: Colors.grey,
                         decoration: InputDecoration(
                             contentPadding:
@@ -72,6 +103,7 @@ class _SignInPageState extends State<SignInPage> {
                           color: Colors.grey.shade200,
                           border: Border.all(color: Colors.grey.shade300)),
                       child: TextField(
+                        controller: _passwordController,
                         cursorColor: Colors.grey,
                         decoration: InputDecoration(
                             contentPadding:
@@ -95,7 +127,7 @@ class _SignInPageState extends State<SignInPage> {
                         style: ElevatedButton.styleFrom(
                             primary: Colors.blue, fixedSize: Size(50, 50)),
                         onPressed: () {
-                          Navigator.pushReplacementNamed(context, ControlPage.id);
+                          _doSignIn(context);
                           FocusScope.of(context).requestFocus(FocusNode());
                         },
                         child: const Text(

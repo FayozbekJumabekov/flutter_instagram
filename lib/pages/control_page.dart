@@ -5,6 +5,7 @@ import 'package:flutter_instagram/pages/like_page.dart';
 import 'package:flutter_instagram/pages/profile_page.dart';
 import 'package:flutter_instagram/pages/search_page.dart';
 import 'package:flutter_instagram/pages/upload_page.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ControlPage extends StatefulWidget {
   const ControlPage({Key? key}) : super(key: key);
@@ -19,6 +20,12 @@ class _ControlPageState extends State<ControlPage> {
   PageController pageController = PageController();
 
   @override
+  void dispose() {
+    super.dispose();
+    pageController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: PageView(
@@ -30,14 +37,15 @@ class _ControlPageState extends State<ControlPage> {
         },
         controller: pageController,
         children: [
-          FeedPage(),
+          FeedPage(pageController: pageController,),
           SearchPage(),
-          UploadPage(),
+          UploadPage(pageController: pageController,),
           LikePage(),
           ProfilePage()
         ],
       ),
       bottomNavigationBar: CupertinoTabBar(
+        inactiveColor: Colors.black,
         currentIndex: selectedIndex,
         activeColor: Colors.purple,
         onTap: (index) {
@@ -57,7 +65,7 @@ class _ControlPageState extends State<ControlPage> {
             icon: Icon(Icons.add_box),
           ),
           BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.heart),
+            icon: Icon(Icons.favorite_border_outlined),
           ),
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.person_alt_circle_fill),

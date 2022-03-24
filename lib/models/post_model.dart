@@ -1,3 +1,5 @@
+import 'dart:io';
+
 class Post {
   String? uid;
   String? fullName;
@@ -7,6 +9,7 @@ class Post {
   String? createdDate;
   bool? isLiked;
   bool? isMine;
+  File? image;
   String? profileImage;
 
   Post({
@@ -19,6 +22,7 @@ class Post {
     required this.isMine,
     required this.fullName,
     this.profileImage,
+    this.image,
   });
 
   Post.fromJson(Map<String, dynamic> json) {

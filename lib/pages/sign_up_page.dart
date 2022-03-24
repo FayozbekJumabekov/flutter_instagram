@@ -1,7 +1,15 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_instagram/pages/control_page.dart';
 import 'package:flutter_instagram/pages/sign_in_page.dart';
+import 'package:flutter_instagram/services/prefs_service.dart';
+import 'package:flutter_instagram/utils/email_password_valid.dart';
+import 'package:flutter_instagram/utils/widget_catalog.dart';
+
+import '../services/auth_service.dart';
+import '../services/log_service.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -12,25 +20,81 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  bool hidePassword = true;
-  String _chosenValue = 'Please choose a langauage';
   String selectedLang = 'English';
+
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _cpasswordController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  bool hidePassword = true;
+
+  bool _checkValid(BuildContext context, String firstName, String email,
+      String password, String cpassword) {
+    if (email.isEmpty || password.isEmpty || firstName.isEmpty) {
+      WidgetCatalog.showSnackBar(
+          context, "Field can not be empty. Please fill it");
+      return false;
+    }
+
+    if (!Validators.isValidEmail(email)) {
+      WidgetCatalog.showSnackBar(context, "Please, enter valid Email");
+      return false;
+    }
+
+    if (!Validators.isValidPassword(password)) {
+      WidgetCatalog.showSnackBar(context,
+          "Password must be at least one upper case, one lower case, one digit, one Special character & be at least 8 characters in length");
+      return false;
+    }
+
+    if (password != cpassword) {
+      WidgetCatalog.showSnackBar(context, "Passwords do not match");
+      return false;
+    }
+    return true;
+  }
+
+  void _doSignUp(BuildContext context) {
+    String email = _emailController.text.toString().trim();
+    String password = _passwordController.text.toString().trim();
+    String cpassword = _cpasswordController.text.toString().trim();
+    String firstName = _nameController.text.toString().trim();
+    if (_checkValid(context, firstName, email, password, cpassword)) {
+      AuthenticationService.signUpUser(
+              context: context,
+              name: firstName,
+              email: email,
+              password: password)
+          .then((value) => {
+                getUser(value),
+              });
+    }
+  }
+
+  void getUser(User? firebaseuser) async {
+    if (firebaseuser != null) {
+      Prefs.store(StorageKeys.UID, firebaseuser.uid);
+      (Prefs.load(StorageKeys.UID).then((value) => {Log.w(value!)}));
+      Navigator.pushReplacementNamed(context, ControlPage.id);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
+        extendBodyBehindAppBar: true,
         appBar: AppBar(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           elevation: 0,
-          /// Dropdow
+
+          /// Dropdown
           title: Container(
             alignment: Alignment.center,
             child: DropdownButton<String>(
               value: selectedLang,
               underline: SizedBox.shrink(),
-              items: <String>['English', 'Uzbek', 'Russian']
-                  .map((String value) {
+              items:
+                  <String>['English', 'Uzbek', 'Russian'].map((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Text(value),
@@ -70,7 +134,6 @@ class _SignUpPageState extends State<SignUpPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-
                       ///Instagram Text
                       const Text(
                         'Instagram',
@@ -91,6 +154,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               color: Colors.grey.shade200,
                               border: Border.all(color: Colors.grey.shade300)),
                           child: TextField(
+                            controller: _nameController,
                             cursorColor: Colors.grey,
                             decoration: InputDecoration(
                                 contentPadding:
@@ -108,6 +172,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             color: Colors.grey.shade200,
                             border: Border.all(color: Colors.grey.shade300)),
                         child: TextField(
+                          controller: _emailController,
                           cursorColor: Colors.grey,
                           decoration: InputDecoration(
                               contentPadding:
@@ -126,6 +191,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             color: Colors.grey.shade200,
                             border: Border.all(color: Colors.grey.shade300)),
                         child: TextField(
+                          controller: _passwordController,
                           cursorColor: Colors.grey,
                           decoration: InputDecoration(
                               contentPadding:
@@ -144,6 +210,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             color: Colors.grey.shade200,
                             border: Border.all(color: Colors.grey.shade300)),
                         child: TextField(
+                          controller: _cpasswordController,
                           cursorColor: Colors.grey,
                           decoration: InputDecoration(
                               contentPadding:
@@ -173,6 +240,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           style: ElevatedButton.styleFrom(
                               primary: Colors.blue, fixedSize: Size(50, 50)),
                           onPressed: () {
+                            _doSignUp(context);
                             FocusScope.of(context).requestFocus(FocusNode());
                           },
                           child: const Text(

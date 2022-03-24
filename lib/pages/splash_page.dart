@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_instagram/pages/control_page.dart';
 import 'package:flutter_instagram/pages/sign_up_page.dart';
 
 class SplashPage extends StatefulWidget {
@@ -13,7 +14,7 @@ class SplashPage extends StatefulWidget {
 class _SplashPageState extends State<SplashPage> {
   void callHomePage() {
     Timer(const Duration(seconds: 3), () {
-      Navigator.pushReplacementNamed(context, SignUpPage.id);
+      Navigator.pushReplacementNamed(context, ControlPage.id);
     });
   }
 
