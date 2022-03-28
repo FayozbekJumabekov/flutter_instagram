@@ -1,13 +1,13 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instagram/pages/control_page.dart';
 import 'package:flutter_instagram/pages/sign_in_page.dart';
+import 'package:flutter_instagram/services/firestore_service.dart';
 import 'package:flutter_instagram/services/prefs_service.dart';
 import 'package:flutter_instagram/utils/email_password_valid.dart';
 import 'package:flutter_instagram/utils/widget_catalog.dart';
-
+import 'package:flutter_instagram/models/user_model.dart' as model;
 import '../services/auth_service.dart';
 import '../services/log_service.dart';
 
@@ -59,6 +59,9 @@ class _SignUpPageState extends State<SignUpPage> {
     String password = _passwordController.text.toString().trim();
     String cpassword = _cpasswordController.text.toString().trim();
     String firstName = _nameController.text.toString().trim();
+
+    model.User user =
+        model.User(fullName: firstName, email: email, password: password);
     if (_checkValid(context, firstName, email, password, cpassword)) {
       AuthenticationService.signUpUser(
               context: context,
@@ -66,16 +69,18 @@ class _SignUpPageState extends State<SignUpPage> {
               email: email,
               password: password)
           .then((value) => {
-                getUser(value),
+                getUser(user, value),
               });
     }
   }
 
-  void getUser(User? firebaseuser) async {
+  void getUser(model.User user, User? firebaseuser) async {
     if (firebaseuser != null) {
       Prefs.store(StorageKeys.UID, firebaseuser.uid);
-      (Prefs.load(StorageKeys.UID).then((value) => {Log.w(value!)}));
-      Navigator.pushReplacementNamed(context, ControlPage.id);
+      user.uid = firebaseuser.uid;
+      FireStoreService.storeUser(user).then((value) {
+        Navigator.pushReplacementNamed(context, ControlPage.id);
+      });
     }
   }
 
@@ -83,43 +88,6 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          elevation: 0,
-
-          /// Dropdown
-          title: Container(
-            alignment: Alignment.center,
-            child: DropdownButton<String>(
-              value: selectedLang,
-              underline: SizedBox.shrink(),
-              items:
-                  <String>['English', 'Uzbek', 'Russian'].map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedLang = value!;
-                  switch (selectedLang) {
-                    case "English":
-                      context.setLocale(Locale('en', 'US'));
-                      break;
-                    case "Russian":
-                      context.setLocale(Locale('ru', 'RU'));
-                      break;
-                    case "Uzbek":
-                      context.setLocale(Locale('uz', 'UZ'));
-                      break;
-                  }
-                });
-              },
-            ),
-          ),
-          centerTitle: true,
-        ),
         body: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
               horizontal: MediaQuery.of(context).size.width * 0.1),
@@ -159,7 +127,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             decoration: InputDecoration(
                                 contentPadding:
                                     const EdgeInsets.symmetric(horizontal: 10),
-                                hintText: "Fullname".tr(),
+                                hintText: "Fullname",
                                 hintStyle: const TextStyle(
                                     fontSize: 15, color: Colors.grey),
                                 border: InputBorder.none),
@@ -177,7 +145,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           decoration: InputDecoration(
                               contentPadding:
                                   EdgeInsets.symmetric(horizontal: 10),
-                              hintText: "Email".tr(),
+                              hintText: "Email",
                               hintStyle:
                                   TextStyle(fontSize: 15, color: Colors.grey),
                               border: InputBorder.none),
@@ -196,7 +164,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           decoration: InputDecoration(
                               contentPadding:
                                   EdgeInsets.symmetric(horizontal: 10),
-                              hintText: "Password".tr(),
+                              hintText: "Password",
                               hintStyle:
                                   TextStyle(fontSize: 15, color: Colors.grey),
                               border: InputBorder.none),
@@ -215,7 +183,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           decoration: InputDecoration(
                               contentPadding:
                                   EdgeInsets.symmetric(horizontal: 10),
-                              hintText: "Confirm".tr(),
+                              hintText: "Confirm",
                               hintStyle:
                                   TextStyle(fontSize: 15, color: Colors.grey),
                               border: InputBorder.none),
@@ -230,7 +198,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         'Receive sms',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.grey),
-                      ).tr(),
+                      ),
                       const SizedBox(
                         height: 15,
                       ),
@@ -247,7 +215,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             "Sign Up",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 15),
-                          ).tr()),
+                          )),
                     ],
                   ),
                 ),
@@ -264,7 +232,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             color: Colors.grey,
                             fontWeight: FontWeight.bold,
                             fontSize: 15),
-                        text: "Already have account? ".tr(),
+                        text: "Already have account? ",
                         children: [
                       TextSpan(
                           recognizer: TapGestureRecognizer()
@@ -273,7 +241,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                   context, SignInPage.id);
                             },
                           style: TextStyle(color: Colors.blue.shade900),
-                          text: "Sign In".tr()),
+                          text: "Sign In"),
                     ])),
                 const SizedBox(
                   height: 30,

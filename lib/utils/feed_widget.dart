@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_instagram/models/post_model.dart';
-import 'package:flutter_instagram/utils/widget_catalog.dart';
+import 'package:flutter_instagram/services/firestore_service.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class FeedWidget extends StatefulWidget {
@@ -17,6 +16,18 @@ class FeedWidget extends StatefulWidget {
 
 class _FeedWidgetState extends State<FeedWidget> {
   late Post post;
+  bool isLoading = false;
+
+  void likePost(Post post,bool isLiked)async{
+    setState(() {
+      isLoading = true;
+    });
+   await FireStoreService.likePost(post, isLiked).then((value){
+     setState(() {
+       isLoading = false;
+     });
+   });
+  }
 
   @override
   void initState() {
@@ -35,9 +46,33 @@ class _FeedWidgetState extends State<FeedWidget> {
           Container(
             color: Theme.of(context).scaffoldBackgroundColor,
             child: ListTile(
-              leading: const CircleAvatar(
-                radius: 20,
-                backgroundImage: AssetImage('assets/images/im_profile.png'),
+              horizontalTitleGap: 10,
+              /// Profile Image
+              leading: Container(
+                decoration: BoxDecoration(
+                    color: Colors.purple,
+                    borderRadius: BorderRadius.circular(100)),
+                padding: EdgeInsets.all(2),
+                child: Container(
+                  width: 35,
+                  height: 35,
+                  decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      border: Border.all(color: Colors.white, width: 1),
+                      borderRadius: BorderRadius.circular(100)),
+                  child: (post.profileImage != null)
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(100),
+                          child: CachedNetworkImage(
+                            fit: BoxFit.cover,
+                            imageUrl: post.profileImage!,
+                          ),
+                        )
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(100),
+                          child: Image.asset('assets/images/im_profile.png',fit: BoxFit.cover,),
+                        ),
+                ),
               ),
               title: Text(
                 post.fullName!,
@@ -55,14 +90,20 @@ class _FeedWidgetState extends State<FeedWidget> {
           ),
 
           /// Image
-
-          (post.image != null) ? Image.file(post.image!) : CachedNetworkImage(
-            imageUrl: post.postImage!,
-            placeholder: (context, url) => const Image(
-              image: AssetImage('assets/images/im_placeholder.png'),
-              fit: BoxFit.cover,
-            ),
-            errorWidget: (context, url, error) => Icon(Icons.error),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              CachedNetworkImage(
+                imageUrl: post.postImage!,
+                width: MediaQuery.of(context).size.width,
+                placeholder: (context, url) => const Image(
+                  image: AssetImage('assets/images/im_placeholder.png'),
+                  fit: BoxFit.cover,
+                ),
+                errorWidget: (context, url, error) => Icon(Icons.error),
+              ),
+              if(isLoading) CupertinoActivityIndicator(radius: 20,color: Colors.blue,)
+            ],
           ),
 
           /// Buttons Row
@@ -73,8 +114,13 @@ class _FeedWidgetState extends State<FeedWidget> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   IconButton(
-                      onPressed: () {},
-                      icon: const Icon(
+                      onPressed: () {
+                        (post.isLiked) ? likePost(post, false):likePost(post, true);
+                      },
+                      icon: (post.isLiked) ?Icon(
+                        FontAwesomeIcons.solidHeart,
+                        color: Colors.red,
+                      ) : Icon(
                         FontAwesomeIcons.heart,
                         color: Colors.black,
                       )),
@@ -105,27 +151,23 @@ class _FeedWidgetState extends State<FeedWidget> {
           /// Caption
           (post.caption != null)
               ? Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: RichText(
-                    maxLines: 2,
-                    softWrap: true,
-                    overflow: TextOverflow.ellipsis,
-                    text: TextSpan(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: RichText(
+                      maxLines: 2,
+                      softWrap: true,
+                      overflow: TextOverflow.ellipsis,
+                      text: TextSpan(
                         style: TextStyle(color: Colors.black),
-                        text: "${post.caption} ",
-                        children: [
-                          TextSpan(
-                            text: post.caption,
-                            style: Theme.of(context).textTheme.bodyText2,
-                          )
-                        ])),
-              )
+                        text: post.caption,
+                      )),
+                )
               : const SizedBox.shrink(),
+
           /// data
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
+          Padding (
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             child: Text(
-              WidgetCatalog.getMonthDayYear(post.createdDate!),
+              post.createdDate!,
               style: const TextStyle(color: Colors.black, fontSize: 12),
             ),
           ),

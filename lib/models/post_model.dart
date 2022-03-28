@@ -7,22 +7,13 @@ class Post {
   String? postImage;
   String? caption;
   String? createdDate;
-  bool? isLiked;
-  bool? isMine;
-  File? image;
+  bool isLiked =false;
+  bool isMine = false;
   String? profileImage;
 
   Post({
-    this.uid,
-    required this.id,
     required this.postImage,
     required this.caption,
-    required this.createdDate,
-    required this.isLiked,
-    required this.isMine,
-    required this.fullName,
-    this.profileImage,
-    this.image,
   });
 
   Post.fromJson(Map<String, dynamic> json) {

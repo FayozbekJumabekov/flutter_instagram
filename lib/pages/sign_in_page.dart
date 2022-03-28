@@ -1,4 +1,3 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -34,15 +33,11 @@ class _SignInPageState extends State<SignInPage> {
   void getUser(User? user) async {
     if (user != null) {
       Prefs.store(StorageKeys.UID, user.uid);
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => ControlPage()));
+      Navigator.pushReplacementNamed(context, ControlPage.id);
     } else {
-      if (kDebugMode) {
-        print("Null response");
-      }
+      Log.e("Null Response");
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +84,7 @@ class _SignInPageState extends State<SignInPage> {
                         decoration: InputDecoration(
                             contentPadding:
                                 EdgeInsets.symmetric(horizontal: 10),
-                            hintText: "Email".tr(),
+                            hintText: "Email",
                             hintStyle:
                                 TextStyle(fontSize: 15, color: Colors.grey),
                             border: InputBorder.none),
@@ -108,7 +103,7 @@ class _SignInPageState extends State<SignInPage> {
                         decoration: InputDecoration(
                             contentPadding:
                                 EdgeInsets.symmetric(horizontal: 10),
-                            hintText: "Password".tr(),
+                            hintText: "Password",
                             hintStyle:
                                 TextStyle(fontSize: 15, color: Colors.grey),
                             border: InputBorder.none),
@@ -134,7 +129,7 @@ class _SignInPageState extends State<SignInPage> {
                           "Sign In",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 15),
-                        ).tr()),
+                        )),
                   ],
                 ),
               ),
@@ -152,7 +147,7 @@ class _SignInPageState extends State<SignInPage> {
                         color: Colors.grey,
                         fontWeight: FontWeight.bold,
                         fontSize: 15),
-                    text: "Don't have an account? ".tr(),
+                    text: "Don't have an account? ",
                     children: [
                   TextSpan(
                       recognizer: TapGestureRecognizer()
@@ -161,7 +156,7 @@ class _SignInPageState extends State<SignInPage> {
                               context, SignUpPage.id);
                         },
                       style: TextStyle(color: Colors.blue.shade900),
-                      text: "Sign Up".tr()),
+                      text: "Sign Up"),
                 ])),
             const SizedBox(
               height: 20,

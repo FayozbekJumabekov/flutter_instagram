@@ -1,14 +1,11 @@
-import 'dart:ui';
-
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instagram/utils/glow_widget.dart';
 import 'package:flutter_instagram/utils/profile_details.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
-import '../services/auth_service.dart';
+import '../models/post_model.dart';
+import '../models/user_model.dart';
+import '../services/firestore_service.dart';
 import '../utils/widget_catalog.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -19,10 +16,36 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  User? user;
+  List<Post> posts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _apiLoadUser();
+    loadPost();
+  }
+
+  void loadPost() {
+    FireStoreService.loadPosts().then((posts) {
+      setState(() {
+        this.posts = posts;
+      });
+    });
+  }
+
+  void _apiLoadUser() async {
+    FireStoreService.loadUser().then((value) {
+      setState(() {
+        user = value;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      initialIndex: 1,
+      initialIndex: 0,
       length: 2,
       child: Scaffold(
         appBar: AppBar(
@@ -34,9 +57,9 @@ class _ProfilePageState extends State<ProfilePage> {
           title: ListTile(
             contentPadding: const EdgeInsets.symmetric(),
             title: Row(
-              children: const [
+              children: [
                 Text(
-                  "fayozbek.tuit",
+                  (user != null) ? user!.email! : '',
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -70,7 +93,9 @@ class _ProfilePageState extends State<ProfilePage> {
               return [
                 SliverList(
                     delegate: SliverChildListDelegate([
-                  ProfDetails(),
+                  ProfDetails(
+                    user: user,
+                  ),
                 ]))
               ];
             },
@@ -105,7 +130,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       SizedBox(
                         width: MediaQuery.of(context).size.width,
                         child: GridView.builder(
-                          itemCount: 7,
+                          padding: EdgeInsets.symmetric(vertical: 2,horizontal: 2),
+                          itemCount: posts.length,
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                                   mainAxisSpacing: 2,
@@ -113,7 +139,14 @@ class _ProfilePageState extends State<ProfilePage> {
                                   crossAxisCount: 3),
                           itemBuilder: (BuildContext context, int index) {
                             return Container(
-                              color: Colors.grey.shade300,
+                              child: CachedNetworkImage(
+                                imageUrl: posts[index].postImage!,
+                                placeholder: (context, url) => const Image(
+                                  image: AssetImage('assets/images/im_placeholder.png'),
+                                  fit: BoxFit.cover,
+                                ),
+                                errorWidget: (context, url, error) => Icon(Icons.error),
+                              ),
                             );
                           },
                         ),
@@ -144,6 +177,4 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-
-
 }

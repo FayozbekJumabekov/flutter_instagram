@@ -1,8 +1,6 @@
 import 'dart:ui';
-
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-
+import 'package:intl/intl.dart';
 import '../services/auth_service.dart';
 
 class WidgetCatalog {
@@ -11,7 +9,6 @@ class WidgetCatalog {
     final String formatted = DateFormat.yMMMMd().format(now);
     return formatted;
   }
-
 
   /// SnackBar
   static void showSnackBar(BuildContext context, String content) {
@@ -90,38 +87,51 @@ class WidgetCatalog {
                       ),
                     ),
                   ),
+                  const ListTile(
+                    leading: Icon(
+                      Icons.settings,
+                      size: 30,
+                      color: Colors.black,
+                    ),
+                    title: Text(
+                      'Settings',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
+                  const ListTile(
+                    leading: Icon(
+                      Icons.archive,
+                      size: 30,
+                      color: Colors.black,
+                    ),
+                    title: Text(
+                      'Archive',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
                   ListTile(
-                      leading: Icon(
-                        Icons.settings,
+                      leading: const Icon(
+                        Icons.qr_code,
                         size: 30,
                         color: Colors.black,
                       ),
-                      title: Text(
-                        'Settings',
+                      title: const Text(
+                        'QR code',
                         style: TextStyle(color: Colors.black),
-                      ).tr(),
+                      ),
                       onTap: () {
-                        WidgetCatalog.androidDialog(
-                            title: "Delete Account",
-                            content: "Do you want to delete account ?",
-                            onTapNo: () {
-                              Navigator.pop(context);
-                            },
-                            onTapYes: () {
-                              AuthenticationService.deleteUser(context);
-                            },
-                            context: context);
+                        Navigator.of(context).pop();
                       }),
                   ListTile(
-                      leading: Icon(
-                        Icons.archive,
+                      leading: const Icon(
+                        Icons.logout,
                         size: 30,
                         color: Colors.black,
                       ),
-                      title: Text(
-                        'Archive',
+                      title: const Text(
+                        'Log out',
                         style: TextStyle(color: Colors.black),
-                      ).tr(),
+                      ),
                       onTap: () {
                         WidgetCatalog.androidDialog(
                             title: "Log Out",
@@ -135,43 +145,26 @@ class WidgetCatalog {
                             context: context);
                       }),
                   ListTile(
-                      leading: Icon(
-                        Icons.qr_code,
+                      leading: const Icon(
+                        Icons.delete,
                         size: 30,
                         color: Colors.black,
                       ),
-                      title: Text(
-                        'QR code',
+                      title: const Text(
+                        'Delete account',
                         style: TextStyle(color: Colors.black),
-                      ).tr(),
-                      onTap: () {
-                        Navigator.of(context).pop();
-                      }),
-                  ListTile(
-                      leading: Icon(
-                        Icons.bookmark_border,
-                        size: 30,
-                        color: Colors.black,
                       ),
-                      title: Text(
-                        'Saved',
-                        style: TextStyle(color: Colors.black),
-                      ).tr(),
                       onTap: () {
-                        Navigator.of(context).pop();
-                      }),
-                  ListTile(
-                      leading: Icon(
-                        Icons.menu_open,
-                        size: 30,
-                        color: Colors.black,
-                      ),
-                      title: Text(
-                        'Close friends',
-                        style: TextStyle(color: Colors.black),
-                      ).tr(),
-                      onTap: () {
-                        Navigator.of(context).pop();
+                        WidgetCatalog.androidDialog(
+                            title: "Delete Account",
+                            content: "Do you want to delete account ?",
+                            onTapNo: () {
+                              Navigator.pop(context);
+                            },
+                            onTapYes: () {
+                              AuthenticationService.deleteUser(context);
+                            },
+                            context: context);
                       }),
                 ],
               ),
