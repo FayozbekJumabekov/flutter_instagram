@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_instagram/models/post_model.dart';
 import 'package:flutter_instagram/models/user_model.dart';
 import 'package:flutter_instagram/services/firestore_service.dart';
 import 'package:flutter_instagram/services/storage_service.dart';
@@ -19,9 +20,15 @@ class _SearchPageState extends State<SearchPage> {
   TextEditingController textEditingController = TextEditingController();
   bool isLoading = false;
   List<User> users = [];
-  List<String> imgUrl = [];
+  List<Post> posts = [];
 
+  @override
+  void initState() {
+    super.initState();
+    sendImgRequest();
+  }
 
+  /// Follow
   Future<void> followUser(User user) async {
     setState(() {
       isLoading = true;
@@ -35,7 +42,7 @@ class _SearchPageState extends State<SearchPage> {
     });
     await FireStoreService.storePostsToMyFeed(user);
   }
-
+  /// UnFollow
   Future<void> unFollowUser(User user) async {
     setState(() {
       user.followed = false;
@@ -50,11 +57,6 @@ class _SearchPageState extends State<SearchPage> {
   }
 
 
-  @override
-  void initState() {
-    super.initState();
-    sendImgRequest();
-  }
 
   /// Search Methods
   void sendSearchRequest(String keyword) {
@@ -84,15 +86,17 @@ class _SearchPageState extends State<SearchPage> {
     setState(() {
       isLoading = true;
     });
-    StoreService.loadStoredImages().then((value) {
-      getImages(value);
+    FireStoreService.loadAllPosts().then((value){
+      setState(() {
+        getImages(value);
+      });
     });
   }
 
-  getImages(List<String> imgUrls) {
+  getImages(List<Post> response) {
     setState(() {
       isLoading = false;
-      imgUrl = imgUrls;
+      posts = response;
     });
   }
 
@@ -105,7 +109,7 @@ class _SearchPageState extends State<SearchPage> {
             return [
               SliverList(
                   delegate: SliverChildListDelegate([
-                textfield(context),
+                textField(context),
               ]))
             ];
           },
@@ -125,13 +129,14 @@ class _SearchPageState extends State<SearchPage> {
                               ? usersListTile(users[index])
                               : buildMovieShimmer(true);
                         }),
+                    /// Images
                     if (users.isEmpty)
                       MasonryGridView.count(
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 10),
-                        itemCount: imgUrl.length,
+                        itemCount: posts.length,
                         crossAxisCount: 2,
                         crossAxisSpacing: 5,
                         mainAxisSpacing: 5,
@@ -139,7 +144,7 @@ class _SearchPageState extends State<SearchPage> {
                           return ClipRRect(
                             borderRadius: BorderRadius.circular(5),
                             child: CachedNetworkImage(
-                              imageUrl: imgUrl[index],
+                              imageUrl: posts[index].postImage!,
                               placeholder: (context, index) => const Image(
                                 fit: BoxFit.cover,
                                 image: AssetImage(
@@ -165,40 +170,38 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget usersListTile(User user) {
-    return Container(
-      child: ListTile(
-        leading: Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                border: Border.all(color: Colors.purple, width: 2),
-                borderRadius: BorderRadius.circular(100)),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(100),
-              child: CachedNetworkImage(
-                fit: BoxFit.cover,
-                imageUrl: user.imageUrl!,
-              ),
-            )),
-        title: Text(
-          user.fullName!
-              .replaceFirst(user.fullName![0], user.fullName![0].toUpperCase()),
-        ),
-        subtitle: Text(user.email!),
-        trailing: Container(
-          height: 30,
-          child: TextButton(
-            onPressed: () {
-              (user.followed) ? unFollowUser(user):followUser(user);
-            },
-            child: Text((user.followed) ?"Unfollow":"Follow"),
-            style: TextButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                primary: Colors.black,
-                shape: RoundedRectangleBorder(
-                    side: BorderSide(color: Colors.grey))),
-          ),
+    return ListTile(
+      leading: Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              border: Border.all(color: Colors.purple, width: 2),
+              borderRadius: BorderRadius.circular(100)),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(100),
+            child: CachedNetworkImage(
+              fit: BoxFit.cover,
+              imageUrl: user.imageUrl!,
+            ),
+          )),
+      title: Text(
+        user.fullName!
+            .replaceFirst(user.fullName![0], user.fullName![0].toUpperCase()),
+      ),
+      subtitle: Text(user.email!),
+      trailing: Container(
+        height: 30,
+        child: TextButton(
+          onPressed: () {
+            (user.followed) ? unFollowUser(user):followUser(user);
+          },
+          child: Text((user.followed) ?"Unfollow":"Follow"),
+          style: TextButton.styleFrom(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              primary: Colors.black,
+              shape: RoundedRectangleBorder(
+                  side: BorderSide(color: Colors.grey))),
         ),
       ),
     );
@@ -206,7 +209,7 @@ class _SearchPageState extends State<SearchPage> {
 
   Widget buildMovieShimmer(bool isHasLeading) => ListTile(
         leading: (isHasLeading)
-            ? CustomWidget.circular(height: 80, width: 80)
+            ? const CustomWidget.circular(height: 80, width: 80)
             : null,
         title: Align(
           alignment: Alignment.centerLeft,
@@ -215,10 +218,10 @@ class _SearchPageState extends State<SearchPage> {
             width: MediaQuery.of(context).size.width * 0.3,
           ),
         ),
-        subtitle: CustomWidget.rectangular(height: 14),
+        subtitle: const CustomWidget.rectangular(height: 14),
       );
 
-  Container textfield(BuildContext context) {
+  Container textField(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(
           top: MediaQuery.of(context).size.height * 0.05, left: 10, right: 10),

@@ -30,7 +30,6 @@ class _LikePageState extends State<LikePage> {
     });
 
     FireStoreService.loadLikes().then((value) {
-      Log.w('Response' + value.length.toString());
       getResponse(value);
     });
   }
@@ -79,6 +78,7 @@ class _LikePageState extends State<LikePage> {
 
   Widget usersListTile(User user) {
     return Container(
+      margin: EdgeInsets.symmetric(vertical: 5),
       child: ListTile(
         leading: Container(
           width: 50,

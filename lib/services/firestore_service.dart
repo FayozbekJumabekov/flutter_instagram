@@ -12,6 +12,7 @@ class FireStoreService {
 
   // folder
   static const String usersFolder = "users";
+  static const String allPostsFolder = "all_posts";
   static const String postsFolder = "posts";
   static const String feedsFolder = "feeds";
   static const String likesFolder = "likes";
@@ -91,6 +92,9 @@ class FireStoreService {
         .doc()
         .id;
     post.id = postId;
+    // Store to All post for Search page
+    await instance.collection(allPostsFolder).doc(postId).set(post.toJson());
+    // Store to users posts
     await instance
         .collection(usersFolder)
         .doc(me.uid)
@@ -145,18 +149,38 @@ class FireStoreService {
     return posts;
   }
 
+  static Future<List<Post>> loadAllPosts() async {
+    List<Post> posts = [];
+    var querySnapshot = await instance.collection(allPostsFolder).get();
+
+    for (var element in querySnapshot.docs) {
+      posts.add(Post.fromJson(element.data()));
+    }
+
+    return posts;
+  }
+
   /// Like Post methods
   static Future<Post> likePost(Post post, bool isLiked) async {
     User user = await loadUser();
     user.likedImage = post.postImage;
     post.isLiked = isLiked;
-    await instance
-        .collection(usersFolder)
-        .doc(post.uid)
-        .collection(likesFolder)
-        .doc(post.id)
-        .set(user.toJson());
+    // Add or Remove from likesFolder
+    (isLiked)
+        ? await instance
+            .collection(usersFolder)
+            .doc(post.uid)
+            .collection(likesFolder)
+            .doc(post.id)
+            .set(user.toJson())
+        : await instance
+            .collection(usersFolder)
+            .doc(post.uid)
+            .collection(likesFolder)
+            .doc(post.id)
+            .delete();
 
+    // Update liked post
     await instance
         .collection(usersFolder)
         .doc(user.uid)
@@ -182,10 +206,8 @@ class FireStoreService {
         .doc(uid)
         .collection(likesFolder)
         .get();
-    Log.w(querySnapshot.docs.length.toString());
 
     for (var element in querySnapshot.docs) {
-      Log.w(element.data().toString());
       User user = User.fromJson(element.data());
       likeUsers.add(user);
     }
@@ -195,9 +217,9 @@ class FireStoreService {
   /// Follow methods
   static Future<User> followUser(User someone) async {
     User me = await loadUser();
-    me.followingCount = me.followingCount+1;
+    me.followingCount = me.followingCount + 1;
     updateUser(me);
-    someone.followersCount = someone.followersCount+1;
+    someone.followersCount = someone.followersCount + 1;
     updateUser(someone);
     // I followed to someone
     await instance
@@ -220,9 +242,9 @@ class FireStoreService {
 
   static Future<User> unFollowUser(User someone) async {
     User me = await loadUser();
-    me.followingCount = me.followingCount-1;
+    me.followingCount = me.followingCount - 1;
     updateUser(me);
-    someone.followersCount = someone.followersCount-1;
+    someone.followersCount = someone.followersCount - 1;
     updateUser(someone);
     // I unFollowed to someone
     await instance
