@@ -173,11 +173,11 @@ class FireStoreService {
     if (isLiked) {
       user.likedImage = post.postImage;
       post.likedCount = post.likedCount + 1;
-      post.likedByUsers.add(user.fullName.toString());
+      post.likedByUsers.add(user.toJson());
     } else {
       user.likedImage = null;
       post.likedCount = post.likedCount - 1;
-      post.likedByUsers.remove(user.fullName.toString());
+      post.likedByUsers.removeWhere((element) => (element['uid'] == user.uid));
     }
     // Update my liked Feed post
     await instance
@@ -199,6 +199,7 @@ class FireStoreService {
     } else {
       await methodLikeSomeones(user, post, isLiked);
     }
+    post.isLiked = !post.isLiked;
     return post;
   }
 

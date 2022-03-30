@@ -18,7 +18,7 @@ class FeedWidget extends StatefulWidget {
 class _FeedWidgetState extends State<FeedWidget> {
   late Post post;
   bool isLoading = false;
-  List<dynamic> likedByUsers = [];
+  List<User> likedByUsers = [];
 
   void likePost(Post post, bool isLiked) async {
     setState(() {
@@ -35,7 +35,7 @@ class _FeedWidgetState extends State<FeedWidget> {
   void getDataFromParentWidget() {
     setState(() {
       post = widget.post;
-      likedByUsers = post.likedByUsers;
+      likedByUsers = List.from(post.likedByUsers.map((e) => User.fromJson(e)));
     });
   }
 
@@ -44,8 +44,6 @@ class _FeedWidgetState extends State<FeedWidget> {
     super.didUpdateWidget(oldWidget);
     getDataFromParentWidget();
   }
-
-
 
   @override
   void initState() {
@@ -139,31 +137,31 @@ class _FeedWidgetState extends State<FeedWidget> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  /// Like button
-                  if(!post.isMine)
-                  IconButton(
-                      onPressed: () {
-                        (post.isLiked)
-                            ? likePost(post, false)
-                            : likePost(post, true);
-                      },
-                      icon: (post.isLiked)
-                          ? Icon(
-                              FontAwesomeIcons.solidHeart,
-                              color: Colors.red,
-                            )
-                          : Icon(
-                              FontAwesomeIcons.heart,
-                              color: Colors.black,
-                            )),
-                  /// Comment button
+                  // Like button
+                  if (!post.isMine)
+                    IconButton(
+                        onPressed: () {
+                          (post.isLiked)
+                              ? likePost(post, false)
+                              : likePost(post, true);
+                        },
+                        icon: (post.isLiked)
+                            ? Icon(
+                                FontAwesomeIcons.solidHeart,
+                                color: Colors.red,
+                              )
+                            : Icon(
+                                FontAwesomeIcons.heart,
+                                color: Colors.black,
+                              )),
+                  // Comment button
                   IconButton(
                       onPressed: () {},
                       icon: const Icon(
                         FontAwesomeIcons.comment,
                         color: Colors.black,
                       )),
-                  /// Share button
+                  // Share button
                   IconButton(
                       onPressed: () {},
                       icon: const Icon(
@@ -181,14 +179,77 @@ class _FeedWidgetState extends State<FeedWidget> {
               ),
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Text("${post.likedCount} likes",style: const TextStyle(color: Colors.black,fontWeight: FontWeight.w700,fontSize: 15),),
-          ),
+
           /// Likes Count
+          if (likedByUsers.length >=2)
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 10),
+            child: Row(
+              children: [
+                Container(
+                  width: 25,
+                  height: 25,
+                  decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      border: Border.all(color: Colors.white, width: 1),
+                      borderRadius: BorderRadius.circular(100)),
+                  child: (likedByUsers.elementAt(likedByUsers.length-2).imageUrl != null)
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(100),
+                          child: CachedNetworkImage(
+                            fit: BoxFit.cover,
+                            imageUrl: likedByUsers.elementAt(likedByUsers.length-2).imageUrl!,
+                          ),
+                        )
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(100),
+                          child: Image.asset(
+                            'assets/images/im_profile.png',
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                ),
+                Transform.translate(
+                  offset: Offset(-8, 0),
+                  child: Container(
+                    width: 25,
+                    height: 25,
+                    decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        border: Border.all(color: Colors.white, width: 1),
+                        borderRadius: BorderRadius.circular(100)),
+                    child: (likedByUsers.last.imageUrl != null)
+                        ? ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: CachedNetworkImage(
+                        fit: BoxFit.cover,
+                        imageUrl: likedByUsers.last.imageUrl!,
+                      ),
+                    )
+                        : ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: Image.asset(
+                        'assets/images/im_profile.png',
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+                Text(
+                  "...${post.likedCount} likes",
+                  style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15),
+                ),
+              ],
+            ),
+          ),
+
+          /// Liked By
           if (likedByUsers.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
               child: RichText(
                 maxLines: 2,
                 softWrap: true,
@@ -208,7 +269,7 @@ class _FeedWidgetState extends State<FeedWidget> {
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700),
                                 text: (index != 2)
-                                    ? '${likedByUsers.reversed.elementAt(index)}, '
+                                    ? '${likedByUsers.reversed.elementAt(index).fullName}, '
                                     : ' and others'))
                         : List.generate(
                             1,
@@ -217,7 +278,8 @@ class _FeedWidgetState extends State<FeedWidget> {
                                     color: Colors.black,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700),
-                                text: '${likedByUsers.reversed.elementAt(index)}'))),
+                                text:
+                                    '${likedByUsers.reversed.elementAt(index).fullName}'))),
               ),
             ),
 
