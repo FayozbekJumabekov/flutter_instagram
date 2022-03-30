@@ -174,6 +174,7 @@ class _UploadPageState extends State<UploadPage> {
           if (isLoading)
             const CupertinoActivityIndicator(
               radius: 30,
+              color: Colors.blue,
             )
         ],
       ),

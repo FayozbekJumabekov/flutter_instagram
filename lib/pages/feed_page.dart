@@ -4,7 +4,6 @@ import 'package:flutter_instagram/services/firestore_service.dart';
 import 'package:flutter_instagram/utils/feed_widget.dart';
 import 'package:flutter_instagram/utils/glow_widget.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
 import '../models/post_model.dart';
 
 class FeedPage extends StatefulWidget {
@@ -18,6 +17,7 @@ class FeedPage extends StatefulWidget {
 
 class _FeedPageState extends State<FeedPage> {
   List<Post> posts = [];
+  List<Post> likedByUsers = [];
   bool isLoading = false;
 
   void apiLoadPosts() {
@@ -29,13 +29,13 @@ class _FeedPageState extends State<FeedPage> {
       getResPosts(posts);
     });
   }
-
-  getResPosts(List<Post> posts) {
+  void getResPosts(List<Post> posts) {
     setState(() {
       this.posts = posts;
       isLoading = false;
     });
   }
+
 
 
   @override
@@ -67,7 +67,7 @@ class _FeedPageState extends State<FeedPage> {
           ],
         ),
         body: Glow(
-          child: Container(
+          child: SizedBox(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
             child: Stack(
@@ -85,7 +85,7 @@ class _FeedPageState extends State<FeedPage> {
                     ],
                   ),
                 ),
-                if (isLoading) Center(child: const CupertinoActivityIndicator(radius: 30,))
+                if (isLoading) Center(child: const CupertinoActivityIndicator(radius: 30,color: Colors.blue,))
 
               ],
             ),

@@ -163,30 +163,28 @@ class FireStoreService {
   /// Like Post methods
   static Future<Post> likePost(Post post, bool isLiked) async {
     User user = await loadUser();
-    user.likedImage = post.postImage;
     post.isLiked = isLiked;
-    // Add or Remove from likesFolder
-    (isLiked)
-        ? await instance
-            .collection(usersFolder)
-            .doc(post.uid)
-            .collection(likesFolder)
-            .doc(post.id)
-            .set(user.toJson())
-        : await instance
-            .collection(usersFolder)
-            .doc(post.uid)
-            .collection(likesFolder)
-            .doc(post.id)
-            .delete();
+    if(isLiked) {
+      user.likedImage = post.postImage;
+      post.likedCount = post.likedCount + 1;
+      post.likedByUsers.add(user.fullName.toString());
+    }
+    else{
+      user.likedImage = null;
+      post.likedCount = post.likedCount - 1;
+      post.likedByUsers.remove(user.fullName.toString());
 
-    // Update liked post
+    }
+    // Update my liked Feed post
     await instance
         .collection(usersFolder)
         .doc(user.uid)
         .collection(feedsFolder)
         .doc(post.id)
         .update(post.toJson());
+    await storedLikeByUsers(user, post, isLiked);
+
+    //Update my liked post
     if (user.uid == post.uid) {
       await instance
           .collection(usersFolder)
@@ -194,9 +192,46 @@ class FireStoreService {
           .collection(postsFolder)
           .doc(post.id)
           .update(post.toJson());
+    } else {
+      post.isLiked = !post.isLiked;
+      // Update someones liked Feed post
+      await instance
+          .collection(usersFolder)
+          .doc(post.uid)
+          .collection(feedsFolder)
+          .doc(post.id)
+          .update(post.toJson());
+      // Update someones liked Posts post
+
+      await instance
+          .collection(usersFolder)
+          .doc(post.uid)
+          .collection(postsFolder)
+          .doc(post.id)
+          .update(post.toJson());
     }
     return post;
   }
+
+  static Future<Post> storedLikeByUsers(
+      User user, Post post, bool isLiked) async {
+    // Add or Remove from likesFolder
+    ((isLiked) && (user.uid != post.uid))
+        ? await instance
+            .collection(usersFolder)
+            .doc(post.uid)
+            .collection(likesFolder)
+            .doc(post.id!+user.uid!)
+            .set(user.toJson())
+        : await instance
+            .collection(usersFolder)
+            .doc(post.uid)
+            .collection(likesFolder)
+            .doc(post.id!+user.uid!)
+            .delete();
+    return post;
+  }
+
 
   static Future<List<User>> loadLikes() async {
     String uid = (await Prefs.load(StorageKeys.UID))!;
