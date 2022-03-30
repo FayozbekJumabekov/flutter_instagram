@@ -83,6 +83,7 @@ class FireStoreService {
     post.uid = me.uid;
     post.fullName = me.fullName;
     post.profileImage = me.imageUrl;
+    post.isMine = true;
     post.createdDate = WidgetCatalog.getMonthDayYear(DateTime.now().toString());
 
     String postId = instance
@@ -126,7 +127,12 @@ class FireStoreService {
 
     for (var element in querySnapshot.docs) {
       Post post = Post.fromJson(element.data());
-      if (post.uid == uid) post.isMine = true;
+      if (post.uid == uid) {
+        post.isMine = true;
+      }
+      else{
+        post.isMine = false;
+      }
       posts.add(post);
     }
 
@@ -164,16 +170,14 @@ class FireStoreService {
   static Future<Post> likePost(Post post, bool isLiked) async {
     User user = await loadUser();
     post.isLiked = isLiked;
-    if(isLiked) {
+    if (isLiked) {
       user.likedImage = post.postImage;
       post.likedCount = post.likedCount + 1;
       post.likedByUsers.add(user.fullName.toString());
-    }
-    else{
+    } else {
       user.likedImage = null;
       post.likedCount = post.likedCount - 1;
       post.likedByUsers.remove(user.fullName.toString());
-
     }
     // Update my liked Feed post
     await instance
@@ -193,24 +197,30 @@ class FireStoreService {
           .doc(post.id)
           .update(post.toJson());
     } else {
-      post.isLiked = !post.isLiked;
-      // Update someones liked Feed post
-      await instance
-          .collection(usersFolder)
-          .doc(post.uid)
-          .collection(feedsFolder)
-          .doc(post.id)
-          .update(post.toJson());
-      // Update someones liked Posts post
-
-      await instance
-          .collection(usersFolder)
-          .doc(post.uid)
-          .collection(postsFolder)
-          .doc(post.id)
-          .update(post.toJson());
+      await methodLikeSomeones(user, post, isLiked);
     }
     return post;
+  }
+
+  static Future<void> methodLikeSomeones(
+      User user, Post post, bool isLiked) async {
+    post.isLiked = !isLiked;
+
+    // Update someones liked Feed post
+    await instance
+        .collection(usersFolder)
+        .doc(post.uid)
+        .collection(feedsFolder)
+        .doc(post.id)
+        .update(post.toJson());
+    // Update someones liked Posts post
+
+    await instance
+        .collection(usersFolder)
+        .doc(post.uid)
+        .collection(postsFolder)
+        .doc(post.id)
+        .update(post.toJson());
   }
 
   static Future<Post> storedLikeByUsers(
@@ -221,17 +231,16 @@ class FireStoreService {
             .collection(usersFolder)
             .doc(post.uid)
             .collection(likesFolder)
-            .doc(post.id!+user.uid!)
+            .doc(post.id! + user.uid!)
             .set(user.toJson())
         : await instance
             .collection(usersFolder)
             .doc(post.uid)
             .collection(likesFolder)
-            .doc(post.id!+user.uid!)
+            .doc(post.id! + user.uid!)
             .delete();
     return post;
   }
-
 
   static Future<List<User>> loadLikes() async {
     String uid = (await Prefs.load(StorageKeys.UID))!;

@@ -33,30 +33,28 @@ class _SearchPageState extends State<SearchPage> {
     setState(() {
       isLoading = true;
     });
-    FireStoreService.followUser(user).then((value){
+    FireStoreService.followUser(user).then((value) {
       setState(() {
         user.followed = true;
         isLoading = false;
-
       });
     });
     await FireStoreService.storePostsToMyFeed(user);
   }
+
   /// UnFollow
   Future<void> unFollowUser(User user) async {
     setState(() {
       user.followed = false;
       isLoading = true;
     });
-    FireStoreService.unFollowUser(user).then((value){
+    FireStoreService.unFollowUser(user).then((value) {
       setState(() {
         isLoading = false;
       });
     });
     await FireStoreService.removePostsFromMyFeed(user);
   }
-
-
 
   /// Search Methods
   void sendSearchRequest(String keyword) {
@@ -86,7 +84,7 @@ class _SearchPageState extends State<SearchPage> {
     setState(() {
       isLoading = true;
     });
-    FireStoreService.loadAllPosts().then((value){
+    FireStoreService.loadAllPosts().then((value) {
       setState(() {
         getImages(value);
       });
@@ -129,6 +127,7 @@ class _SearchPageState extends State<SearchPage> {
                               ? usersListTile(users[index])
                               : buildMovieShimmer(true);
                         }),
+
                     /// Images
                     if (users.isEmpty)
                       MasonryGridView.count(
@@ -172,19 +171,28 @@ class _SearchPageState extends State<SearchPage> {
   Widget usersListTile(User user) {
     return ListTile(
       leading: Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-              color: Colors.grey.shade300,
-              border: Border.all(color: Colors.purple, width: 2),
-              borderRadius: BorderRadius.circular(100)),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(100),
-            child: CachedNetworkImage(
-              fit: BoxFit.cover,
-              imageUrl: user.imageUrl!,
-            ),
-          )),
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+            color: Colors.grey.shade300,
+            border: Border.all(color: Colors.purple, width: 2),
+            borderRadius: BorderRadius.circular(100)),
+        child: (user.imageUrl != null)
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(100),
+                child: CachedNetworkImage(
+                  fit: BoxFit.cover,
+                  imageUrl: user.imageUrl!,
+                ),
+              )
+            : ClipRRect(
+                borderRadius: BorderRadius.circular(100),
+                child: Image.asset(
+                  'assets/images/im_profile.png',
+                  fit: BoxFit.cover,
+                ),
+              ),
+      ),
       title: Text(
         user.fullName!
             .replaceFirst(user.fullName![0], user.fullName![0].toUpperCase()),
@@ -194,14 +202,14 @@ class _SearchPageState extends State<SearchPage> {
         height: 30,
         child: TextButton(
           onPressed: () {
-            (user.followed) ? unFollowUser(user):followUser(user);
+            (user.followed) ? unFollowUser(user) : followUser(user);
           },
-          child: Text((user.followed) ?"Unfollow":"Follow"),
+          child: Text((user.followed) ? "Unfollow" : "Follow"),
           style: TextButton.styleFrom(
               padding: EdgeInsets.symmetric(horizontal: 20),
               primary: Colors.black,
-              shape: RoundedRectangleBorder(
-                  side: BorderSide(color: Colors.grey))),
+              shape:
+                  RoundedRectangleBorder(side: BorderSide(color: Colors.grey))),
         ),
       ),
     );

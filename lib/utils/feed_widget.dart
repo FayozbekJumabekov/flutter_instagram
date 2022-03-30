@@ -45,6 +45,8 @@ class _FeedWidgetState extends State<FeedWidget> {
     getDataFromParentWidget();
   }
 
+
+
   @override
   void initState() {
     super.initState();
@@ -137,9 +139,10 @@ class _FeedWidgetState extends State<FeedWidget> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
+                  /// Like button
+                  if(!post.isMine)
                   IconButton(
                       onPressed: () {
-
                         (post.isLiked)
                             ? likePost(post, false)
                             : likePost(post, true);
@@ -153,12 +156,14 @@ class _FeedWidgetState extends State<FeedWidget> {
                               FontAwesomeIcons.heart,
                               color: Colors.black,
                             )),
+                  /// Comment button
                   IconButton(
                       onPressed: () {},
                       icon: const Icon(
                         FontAwesomeIcons.comment,
                         color: Colors.black,
                       )),
+                  /// Share button
                   IconButton(
                       onPressed: () {},
                       icon: const Icon(
@@ -169,14 +174,13 @@ class _FeedWidgetState extends State<FeedWidget> {
               ),
               IconButton(
                 color: Colors.black,
-                icon: Icon(
+                icon: const Icon(
                   FontAwesomeIcons.bookmark,
                 ),
                 onPressed: () {},
               ),
             ],
           ),
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Text("${post.likedCount} likes",style: const TextStyle(color: Colors.black,fontWeight: FontWeight.w700,fontSize: 15),),
@@ -184,7 +188,7 @@ class _FeedWidgetState extends State<FeedWidget> {
           /// Likes Count
           if (likedByUsers.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 2),
               child: RichText(
                 maxLines: 2,
                 softWrap: true,

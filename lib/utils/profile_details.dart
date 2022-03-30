@@ -83,7 +83,7 @@ class _ProfDetailsState extends State<ProfDetails> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.5,
+      height: MediaQuery.of(context).size.height * 0.46,
       child: Column(
         children: [
           /// # Profile Account pictue and Statistcs
@@ -268,7 +268,7 @@ class _ProfDetailsState extends State<ProfDetails> {
           /// # Story List
           Container(
             alignment: Alignment.center,
-            height: MediaQuery.of(context).size.height * 0.15,
+            height: MediaQuery.of(context).size.height * 0.18,
             child: ListView.builder(
                 padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 itemCount: 5,
@@ -277,7 +277,7 @@ class _ProfDetailsState extends State<ProfDetails> {
                   return Container(
                     margin: EdgeInsets.symmetric(horizontal: 5),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         (index == 0)
 
