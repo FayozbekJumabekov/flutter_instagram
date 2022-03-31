@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_instagram/services/log_service.dart';
 import 'package:flutter_instagram/services/prefs_service.dart';
-import 'package:flutter_instagram/utils/widget_catalog.dart';
-
+import 'package:flutter_instagram/utils/utils.dart';
 import '../models/post_model.dart';
 import '../models/user_model.dart';
+import '../views/widget_catalog.dart';
 
 class FireStoreService {
   // init
@@ -23,6 +23,11 @@ class FireStoreService {
 
   static Future<void> storeUser(User user) async {
     user.uid = await Prefs.load(StorageKeys.UID);
+    Map<String, String> params = await Utils.deviceParams();
+
+    user.device_id = params["device_id"]!;
+    user.device_type = params["device_type"]!;
+    user.device_token = params["device_token"]!;
     return instance.collection(usersFolder).doc(user.uid).set(user.toJson());
   }
 
@@ -84,7 +89,7 @@ class FireStoreService {
     post.fullName = me.fullName;
     post.profileImage = me.imageUrl;
     post.isMine = true;
-    post.createdDate = WidgetCatalog.getMonthDayYear(DateTime.now().toString());
+    post.createdDate = Utils.getMonthDayYear(DateTime.now().toString());
 
     String postId = instance
         .collection(usersFolder)
@@ -129,8 +134,7 @@ class FireStoreService {
       Post post = Post.fromJson(element.data());
       if (post.uid == uid) {
         post.isMine = true;
-      }
-      else{
+      } else {
         post.isMine = false;
       }
       posts.add(post);

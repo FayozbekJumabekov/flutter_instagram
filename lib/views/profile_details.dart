@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instagram/models/user_model.dart';
 import 'package:flutter_instagram/services/firestore_service.dart';
-import 'package:flutter_instagram/utils/shimmer_anim.dart';
+import 'package:flutter_instagram/views/shimmer_anim.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/log_service.dart';
 import '../services/storage_service.dart';

@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instagram/models/post_model.dart';
 import 'package:flutter_instagram/services/firestore_service.dart';
 import 'package:flutter_instagram/services/storage_service.dart';
-import 'package:flutter_instagram/utils/widget_catalog.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/user_model.dart';
 import '../services/log_service.dart';
+import '../views/widget_catalog.dart';
 
 class UploadPage extends StatefulWidget {
   PageController pageController;

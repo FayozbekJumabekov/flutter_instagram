@@ -4,10 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instagram/models/post_model.dart';
 import 'package:flutter_instagram/models/user_model.dart';
 import 'package:flutter_instagram/services/firestore_service.dart';
-import 'package:flutter_instagram/services/storage_service.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import '../utils/glow_widget.dart';
-import '../utils/shimmer_anim.dart';
+import '../views/glow_widget.dart';
+import '../views/shimmer_anim.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);

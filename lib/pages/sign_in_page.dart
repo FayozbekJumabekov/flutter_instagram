@@ -1,8 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_instagram/models/user_model.dart' as model;
 import 'package:flutter_instagram/pages/sign_up_page.dart';
+import 'package:flutter_instagram/services/firestore_service.dart';
+import 'package:flutter_instagram/utils/utils.dart';
 
 import '../services/auth_service.dart';
 import '../services/log_service.dart';
@@ -18,6 +22,7 @@ class SignInPage extends StatefulWidget {
 }
 
 class _SignInPageState extends State<SignInPage> {
+
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool hidePassword = true;
@@ -33,11 +38,27 @@ class _SignInPageState extends State<SignInPage> {
   void getUser(User? user) async {
     if (user != null) {
       Prefs.store(StorageKeys.UID, user.uid);
+      Utils.initNotification();
+      _apiUpdateUser();
       Navigator.pushReplacementNamed(context, ControlPage.id);
     } else {
       Log.e("Null Response");
     }
   }
+
+  void _apiUpdateUser() async {
+    model.User userModel = await FireStoreService.loadUser();
+    userModel.device_token = (await Prefs.load(StorageKeys.TOKEN))!;
+    await FireStoreService.updateUser(userModel);
+  }
+
+
+  @override
+  void initState() {
+    super.initState();
+
+  }
+
 
   @override
   Widget build(BuildContext context) {

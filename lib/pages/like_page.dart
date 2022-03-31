@@ -3,9 +3,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instagram/models/user_model.dart';
 import 'package:flutter_instagram/services/firestore_service.dart';
-import 'package:flutter_instagram/services/log_service.dart';
-import 'package:flutter_instagram/utils/glow_widget.dart';
-import '../utils/shimmer_anim.dart';
+
+import '../views/glow_widget.dart';
+import '../views/shimmer_anim.dart';
 
 class LikePage extends StatefulWidget {
   const LikePage({Key? key}) : super(key: key);

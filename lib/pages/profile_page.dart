@@ -1,12 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_instagram/utils/glow_widget.dart';
-import 'package:flutter_instagram/utils/profile_details.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../models/post_model.dart';
 import '../models/user_model.dart';
 import '../services/firestore_service.dart';
-import '../utils/widget_catalog.dart';
+import '../views/glow_widget.dart';
+import '../views/profile_details.dart';
+import '../views/widget_catalog.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);

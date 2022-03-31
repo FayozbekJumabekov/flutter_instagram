@@ -22,9 +22,11 @@ class Prefs {
   }
 
   static String _getKey(StorageKeys key) {
-    switch(key) {
-      case StorageKeys.UID: return "uid";
-      case StorageKeys.TOKEN: return "token";
+    switch (key) {
+      case StorageKeys.UID:
+        return "uid";
+      case StorageKeys.TOKEN:
+        return "token";
     }
   }
 }

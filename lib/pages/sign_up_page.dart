@@ -1,15 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instagram/pages/control_page.dart';
 import 'package:flutter_instagram/pages/sign_in_page.dart';
 import 'package:flutter_instagram/services/firestore_service.dart';
+import 'package:flutter_instagram/services/log_service.dart';
 import 'package:flutter_instagram/services/prefs_service.dart';
-import 'package:flutter_instagram/utils/email_password_valid.dart';
-import 'package:flutter_instagram/utils/widget_catalog.dart';
 import 'package:flutter_instagram/models/user_model.dart' as model;
+import 'package:flutter_instagram/utils/utils.dart';
 import '../services/auth_service.dart';
-import '../services/log_service.dart';
+import '../views/widget_catalog.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -20,8 +21,6 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  String selectedLang = 'English';
-
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _cpasswordController = TextEditingController();
@@ -36,12 +35,12 @@ class _SignUpPageState extends State<SignUpPage> {
       return false;
     }
 
-    if (!Validators.isValidEmail(email)) {
+    if (!Utils.isValidEmail(email)) {
       WidgetCatalog.showSnackBar(context, "Please, enter valid Email");
       return false;
     }
 
-    if (!Validators.isValidPassword(password)) {
+    if (!Utils.isValidPassword(password)) {
       WidgetCatalog.showSnackBar(context,
           "Password must be at least one upper case, one lower case, one digit, one Special character & be at least 8 characters in length");
       return false;
@@ -82,6 +81,13 @@ class _SignUpPageState extends State<SignUpPage> {
         Navigator.pushReplacementNamed(context, ControlPage.id);
       });
     }
+  }
+
+
+  @override
+  void initState() {
+    super.initState();
+    Utils.initNotification();
   }
 
   @override

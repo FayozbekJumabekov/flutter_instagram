@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instagram/services/firestore_service.dart';
-import 'package:flutter_instagram/utils/feed_widget.dart';
-import 'package:flutter_instagram/utils/glow_widget.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../models/post_model.dart';
+import '../views/feed_widget.dart';
+import '../views/glow_widget.dart';
 
 class FeedPage extends StatefulWidget {
   PageController pageController;
@@ -29,6 +29,7 @@ class _FeedPageState extends State<FeedPage> {
       getResPosts(posts);
     });
   }
+
   void getResPosts(List<Post> posts) {
     setState(() {
       this.posts = posts;

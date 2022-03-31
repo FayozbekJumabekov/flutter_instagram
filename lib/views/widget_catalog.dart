@@ -1,15 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../services/auth_service.dart';
 
 class WidgetCatalog {
-  static String getMonthDayYear(String date) {
-    final DateTime now = DateTime.parse(date);
-    final String formatted = DateFormat.yMMMMd().format(now);
-    return formatted;
-  }
-
   /// SnackBar
   static void showSnackBar(BuildContext context, String content) {
     SnackBar snackBar = SnackBar(
