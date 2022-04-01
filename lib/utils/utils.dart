@@ -1,12 +1,17 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:intl/intl.dart';
 import '../services/log_service.dart';
 import '../services/prefs_service.dart';
 
 class Utils {
-  static final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  static final FirebaseMessaging _firebaseMessaging =
+      FirebaseMessaging.instance;
 
   static String getMonthDayYear(String date) {
     final DateTime now = DateTime.parse(date);
@@ -54,13 +59,7 @@ class Utils {
 
   static void initNotification() async {
     await _firebaseMessaging.requestPermission(
-      alert: true,
-      announcement: false,
-      badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
-      sound: true,
+        sound: true, badge: true, alert: true
     );
     await _firebaseMessaging.getToken().then((token) {
       if (token != null) {
@@ -68,5 +67,63 @@ class Utils {
         Prefs.store(StorageKeys.TOKEN, token);
       }
     });
+  }
+
+  static Future<void> showLocalNotification(
+      RemoteMessage message, BuildContext context) async {
+    String title = message.notification!.title!;
+    String body = message.notification!.body!;
+    Log.w("show local function is working...");
+
+    var android = const AndroidNotificationDetails('channelId', 'channelName',
+        channelDescription: 'channelDescription');
+    var iOS = const IOSNotificationDetails();
+    var platform = NotificationDetails(android: android, iOS: iOS);
+    int id = Random().nextInt((pow(2, 31) - 1).toInt());
+    await FlutterLocalNotificationsPlugin().show(id, title, body, platform);
+    showToastWidget(
+        Container(
+          width: MediaQuery.of(context).size.width * 0.7,
+          alignment: Alignment.centerLeft,
+          height: 40,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+              color: Colors.white, borderRadius: BorderRadius.circular(20)),
+          child: ListTile(
+            leading: Container(
+              height: 30,
+              width: 30,
+              decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(100)),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(100),
+                child: Image.asset(
+                  'assets/images/im_profile.png',
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            title: Text(
+              title,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              body,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ),
+        context: context,
+        animation: StyledToastAnimation.slideFromTop,
+        reverseAnimation: StyledToastAnimation.slideToTop,
+        position: StyledToastPosition.top,
+        startOffset: const Offset(0.0, -3.0),
+        reverseEndOffset: const Offset(0.0, -3.0),
+        duration: const Duration(seconds: 4),
+        //Animation duration   animDuration * 2 <= duration
+        animDuration: const Duration(seconds: 1),
+        curve: Curves.elasticOut,
+        reverseCurve: Curves.fastOutSlowIn);
   }
 }

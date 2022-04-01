@@ -1,3 +1,4 @@
+import 'package:flutter_instagram/services/http_service.dart';
 import 'package:logger/logger.dart';
 
 class Log {
@@ -6,18 +7,18 @@ class Log {
   );
 
   static void d(String message) {
-     _logger.d(message);
+    if (Network.isTester) _logger.d(message);
   }
 
   static void i(String message) {
-   _logger.i(message);
+    if (Network.isTester) _logger.i(message);
   }
 
   static void e(String message) {
-     _logger.e(message);
+    if (Network.isTester) _logger.e(message);
   }
 
   static void w(String message) {
- _logger.w(message);
+    if (Network.isTester) _logger.w(message);
   }
 }

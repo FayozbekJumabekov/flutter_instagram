@@ -116,6 +116,8 @@ class _FeedWidgetState extends State<FeedWidget> {
               CachedNetworkImage(
                 imageUrl: post.postImage!,
                 width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.width,
+                fit: BoxFit.cover,
                 placeholder: (context, url) => const Image(
                   image: AssetImage('assets/images/im_placeholder.png'),
                   fit: BoxFit.cover,

@@ -4,7 +4,7 @@ import 'package:flutter_instagram/services/prefs_service.dart';
 import 'package:flutter_instagram/utils/utils.dart';
 import '../models/post_model.dart';
 import '../models/user_model.dart';
-import '../views/widget_catalog.dart';
+import 'http_service.dart';
 
 class FireStoreService {
   // init
@@ -88,6 +88,7 @@ class FireStoreService {
     post.uid = me.uid;
     post.fullName = me.fullName;
     post.profileImage = me.imageUrl;
+    post.device_token = me.device_token;
     post.isMine = true;
     post.createdDate = Utils.getMonthDayYear(DateTime.now().toString());
 
@@ -158,6 +159,21 @@ class FireStoreService {
 
     return posts;
   }
+  static Future<List<Post>> loadSomeonesPosts(User user) async {
+    List<Post> posts = [];
+    var querySnapshot = await instance
+        .collection(usersFolder)
+        .doc(user.uid)
+        .collection(postsFolder)
+        .get();
+
+    for (var element in querySnapshot.docs) {
+      posts.add(Post.fromJson(element.data()));
+    }
+
+    return posts;
+  }
+
 
   static Future<List<Post>> loadAllPosts() async {
     List<Post> posts = [];
@@ -204,6 +220,9 @@ class FireStoreService {
       await methodLikeSomeones(user, post, isLiked);
     }
     post.isLiked = !post.isLiked;
+    Network.POST(Network.paramCreateLike(post.device_token, user.fullName!, post.fullName!)).then((value){
+      Log.i("Notif response : $value");
+    });
     return post;
   }
 
@@ -285,6 +304,9 @@ class FireStoreService {
         .collection(followerFolder)
         .doc(me.uid)
         .set(me.toJson());
+    Network.POST(Network.paramCreateFollow(someone.device_token, me.fullName!, someone.fullName!)).then((value){
+      Log.i("Notif response : $value");
+    });
 
     return someone;
   }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instagram/models/post_model.dart';
 import 'package:flutter_instagram/models/user_model.dart';
 import 'package:flutter_instagram/services/firestore_service.dart';
+import 'package:flutter_instagram/views/detail_page.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../views/glow_widget.dart';
 import '../views/shimmer_anim.dart';
@@ -143,6 +144,7 @@ class _SearchPageState extends State<SearchPage> {
                             borderRadius: BorderRadius.circular(5),
                             child: CachedNetworkImage(
                               imageUrl: posts[index].postImage!,
+                              fit: BoxFit.cover,
                               placeholder: (context, index) => const Image(
                                 fit: BoxFit.cover,
                                 image: AssetImage(
@@ -168,47 +170,51 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget usersListTile(User user) {
-    return ListTile(
-      leading: Container(
-        width: 50,
-        height: 50,
-        decoration: BoxDecoration(
-            color: Colors.grey.shade300,
-            border: Border.all(color: Colors.purple, width: 2),
-            borderRadius: BorderRadius.circular(100)),
-        child: (user.imageUrl != null)
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(100),
-                child: CachedNetworkImage(
-                  fit: BoxFit.cover,
-                  imageUrl: user.imageUrl!,
+    return GestureDetector(
+      onTap: (){
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>DetailPage(user: user)));
+      },
+      child: ListTile(
+        leading: Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              border: Border.all(color: Colors.purple, width: 2),
+              borderRadius: BorderRadius.circular(100)),
+          child: (user.imageUrl != null)
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(100),
+                  child: CachedNetworkImage(
+                    fit: BoxFit.cover,
+                    imageUrl: user.imageUrl!,
+                  ),
+                )
+              : ClipRRect(
+                  borderRadius: BorderRadius.circular(100),
+                  child: Image.asset(
+                    'assets/images/im_profile.png',
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              )
-            : ClipRRect(
-                borderRadius: BorderRadius.circular(100),
-                child: Image.asset(
-                  'assets/images/im_profile.png',
-                  fit: BoxFit.cover,
-                ),
-              ),
-      ),
-      title: Text(
-        user.fullName!
-            .replaceFirst(user.fullName![0], user.fullName![0].toUpperCase()),
-      ),
-      subtitle: Text(user.email!),
-      trailing: Container(
-        height: 30,
-        child: TextButton(
-          onPressed: () {
-            (user.followed) ? unFollowUser(user) : followUser(user);
-          },
-          child: Text((user.followed) ? "Unfollow" : "Follow"),
-          style: TextButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              primary: Colors.black,
-              shape:
-                  RoundedRectangleBorder(side: BorderSide(color: Colors.grey))),
+        ),
+        title: Text(
+          user.fullName!,
+        ),
+        subtitle: Text(user.email!),
+        trailing: Container(
+          height: 30,
+          child: TextButton(
+            onPressed: () {
+              (user.followed) ? unFollowUser(user) : followUser(user);
+            },
+            child: Text((user.followed) ? "Unfollow" : "Follow"),
+            style: TextButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                primary: Colors.black,
+                shape: RoundedRectangleBorder(
+                    side: BorderSide(color: Colors.grey))),
+          ),
         ),
       ),
     );

@@ -6,10 +6,27 @@ import 'package:flutter_instagram/pages/sign_in_page.dart';
 import 'package:flutter_instagram/pages/sign_up_page.dart';
 import 'package:flutter_instagram/pages/splash_page.dart';
 import 'package:flutter_instagram/services/prefs_service.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  // notification
+  const AndroidNotificationChannel channel = AndroidNotificationChannel(
+    'high_importance_channel', // id
+    'High Importance Notifications', // title
+    description: 'This channel is used for important notifications.',
+    // description
+    importance: Importance.max,
+  );
+  await FlutterLocalNotificationsPlugin()
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
+  var initAndroidSetting = const AndroidInitializationSettings('@mipmap/ic_launcher');
+  var initIosSetting = const IOSInitializationSettings();
+  var initSetting = InitializationSettings(android: initAndroidSetting, iOS: initIosSetting);
+  await FlutterLocalNotificationsPlugin().initialize(initSetting);
   runApp(const MyApp());
 }
 
@@ -49,4 +66,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
