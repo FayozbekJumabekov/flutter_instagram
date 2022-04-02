@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_instagram/views/shimmer_anim.dart';
 import '../services/auth_service.dart';
 
 class WidgetCatalog {
@@ -35,6 +36,22 @@ class WidgetCatalog {
           );
         });
   }
+
+  ///Shimmer
+  static Widget buildMovieShimmer(bool isHasLeading,BuildContext context) => ListTile(
+    leading: (isHasLeading)
+        ? const CustomWidget.circular(height: 80, width: 80)
+        : null,
+    title: Align(
+      alignment: Alignment.centerLeft,
+      child: CustomWidget.rectangular(
+        height: 16,
+        width: MediaQuery.of(context).size.width * 0.3,
+      ),
+    ),
+    subtitle: const CustomWidget.rectangular(height: 14),
+  );
+
 
   /// DraggableSheet
   static Future<dynamic> buildShowModalBottomSheet(BuildContext context) {

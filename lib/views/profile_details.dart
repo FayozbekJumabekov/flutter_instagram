@@ -19,13 +19,6 @@ class ProfDetails extends StatefulWidget {
 }
 
 class _ProfDetailsState extends State<ProfDetails> {
-  List<String> storyText = [
-    "New",
-    "Sport",
-    "Travelling",
-    "Time Management",
-    "Education"
-  ];
   bool isLoading = true;
   User? user;
   File? image;
@@ -81,7 +74,7 @@ class _ProfDetailsState extends State<ProfDetails> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.46,
+      height: MediaQuery.of(context).size.height * 0.4,
       child: SingleChildScrollView(
         physics: NeverScrollableScrollPhysics(),
         child: Column(
@@ -220,24 +213,6 @@ class _ProfDetailsState extends State<ProfDetails> {
                           height: 1,
                         ),
 
-                        /// # Profile details
-                        const Text.rich(TextSpan(
-                            text: "Digital goodies designer ",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w400, fontSize: 14),
-                            children: [
-                              TextSpan(
-                                  text: "@pixsellz",
-                                  style: TextStyle(color: Colors.blue))
-                            ])),
-                        const SizedBox(
-                          height: 1,
-                        ),
-                        const Text(
-                          "Everything is designed.",
-                          style: TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.w400),
-                        ),
                         const SizedBox(
                           height: 15,
                         ),
@@ -268,73 +243,47 @@ class _ProfDetailsState extends State<ProfDetails> {
 
             /// # Story List
             Container(
-              alignment: Alignment.center,
+              alignment: Alignment.centerLeft,
               height: MediaQuery.of(context).size.height * 0.18,
-              child: ListView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                  itemCount: 5,
-                  scrollDirection: Axis.horizontal,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      margin: EdgeInsets.symmetric(horizontal: 5),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          (index == 0)
-
-                              /// # Add story
-                              ? Container(
-                                  height: 70,
-                                  width: 70,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(100),
-                                      border: Border.all(color: Colors.black)),
-                                  child: const Icon(
-                                    Icons.add_sharp,
-                                    size: 30,
-                                  ),
-                                )
-
-                              /// # Story with picture
-                              : Container(
-                                  padding: EdgeInsets.all(2),
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                          color: Colors.black, width: 1),
-                                      borderRadius: BorderRadius.circular(100)),
-                                  child: Container(
-                                    height: 65,
-                                    width: 65,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(100),
-                                    ),
-                                  ),
-                                ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-
-                          /// Story Description
-                          Container(
-                            width: 70,
-                            alignment: Alignment.center,
-                            child: Text(
-                              storyText[index],
-                              overflow: TextOverflow.ellipsis,
-                              softWrap: true,
-                              maxLines: 1,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                  fontSize: 12,
-                                  letterSpacing: 0.01,
-                                  fontWeight: FontWeight.w400),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
+              margin: EdgeInsets.symmetric(horizontal: 10),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  /// # Add story
+                  Container(
+                    height: 70,
+                    width: 70,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        border: Border.all(color: Colors.black)),
+                    child: const Icon(
+                      Icons.add_sharp,
+                      size: 30,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  /// Story Description
+                  Container(
+                    width: 70,
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Add new",
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: true,
+                      maxLines: 1,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontSize: 12,
+                          letterSpacing: 0.01,
+                          fontWeight: FontWeight.w400),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

@@ -88,7 +88,7 @@ class _ControlPageState extends State<ControlPage> {
             icon: Icon(CupertinoIcons.search),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_box),
+            icon: Icon(FontAwesomeIcons.plusSquare),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.favorite_border_outlined),

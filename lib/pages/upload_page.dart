@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instagram/models/post_model.dart';
 import 'package:flutter_instagram/services/firestore_service.dart';
 import 'package:flutter_instagram/services/storage_service.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/user_model.dart';
 import '../services/log_service.dart';
@@ -103,7 +104,7 @@ class _UploadPageState extends State<UploadPage> {
             onPressed: () {
               uploadPost();
             },
-            icon: Icon(Icons.post_add),
+            icon: Icon(FontAwesomeIcons.upload),
             color: Colors.purple,
           )
         ],

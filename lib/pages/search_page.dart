@@ -5,6 +5,7 @@ import 'package:flutter_instagram/models/post_model.dart';
 import 'package:flutter_instagram/models/user_model.dart';
 import 'package:flutter_instagram/services/firestore_service.dart';
 import 'package:flutter_instagram/views/detail_page.dart';
+import 'package:flutter_instagram/views/widget_catalog.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../views/glow_widget.dart';
 import '../views/shimmer_anim.dart';
@@ -125,7 +126,7 @@ class _SearchPageState extends State<SearchPage> {
                         itemBuilder: (context, index) {
                           return (!isLoading)
                               ? usersListTile(users[index])
-                              : buildMovieShimmer(true);
+                              : WidgetCatalog.buildMovieShimmer(true,context);
                         }),
 
                     /// Images
@@ -219,20 +220,6 @@ class _SearchPageState extends State<SearchPage> {
       ),
     );
   }
-
-  Widget buildMovieShimmer(bool isHasLeading) => ListTile(
-        leading: (isHasLeading)
-            ? const CustomWidget.circular(height: 80, width: 80)
-            : null,
-        title: Align(
-          alignment: Alignment.centerLeft,
-          child: CustomWidget.rectangular(
-            height: 16,
-            width: MediaQuery.of(context).size.width * 0.3,
-          ),
-        ),
-        subtitle: const CustomWidget.rectangular(height: 14),
-      );
 
   Container textField(BuildContext context) {
     return Container(

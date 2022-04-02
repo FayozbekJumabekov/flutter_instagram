@@ -106,6 +106,8 @@ class _DetailPageState extends State<DetailPage> {
                 Expanded(
                   child: TabBarView(
                     children: [
+
+                      /// Posts
                       SizedBox(
                         width: MediaQuery.of(context).size.width,
                         child: GridView.builder(
@@ -133,10 +135,12 @@ class _DetailPageState extends State<DetailPage> {
                           },
                         ),
                       ),
+
+                      /// Tagged Posts
                       SizedBox(
                         width: MediaQuery.of(context).size.width,
                         child: GridView.builder(
-                          itemCount: 7,
+                          itemCount: posts.length,
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                                   mainAxisSpacing: 1,
@@ -144,7 +148,16 @@ class _DetailPageState extends State<DetailPage> {
                                   crossAxisCount: 2),
                           itemBuilder: (BuildContext context, int index) {
                             return Container(
-                              color: Colors.grey.shade300,
+                              child: CachedNetworkImage(
+                                imageUrl: posts[index].postImage!,
+                                placeholder: (context, url) => const Image(
+                                  image: AssetImage(
+                                      'assets/images/im_placeholder.png'),
+                                  fit: BoxFit.cover,
+                                ),
+                                errorWidget: (context, url, error) =>
+                                    Icon(Icons.error),
+                              ),
                             );
                           },
                         ),

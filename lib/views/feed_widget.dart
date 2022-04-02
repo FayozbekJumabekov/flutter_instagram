@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_instagram/models/post_model.dart';
 import 'package:flutter_instagram/models/user_model.dart';
 import 'package:flutter_instagram/services/firestore_service.dart';
+import 'package:flutter_instagram/services/http_service.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class FeedWidget extends StatefulWidget {
@@ -17,6 +20,7 @@ class FeedWidget extends StatefulWidget {
 
 class _FeedWidgetState extends State<FeedWidget> {
   late Post post;
+  DateTime? currentBackPressTime;
   bool isLoading = false;
   List<User> likedByUsers = [];
 
@@ -165,7 +169,9 @@ class _FeedWidgetState extends State<FeedWidget> {
                       )),
                   // Share button
                   IconButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                       await Network.sharePost(post.caption!, post.postImage!);
+                      },
                       icon: const Icon(
                         CupertinoIcons.paperplane_fill,
                         color: Colors.black,
@@ -183,70 +189,75 @@ class _FeedWidgetState extends State<FeedWidget> {
           ),
 
           /// Likes Count
-          if (likedByUsers.length >=2)
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 10),
-            child: Row(
-              children: [
-                Container(
-                  width: 25,
-                  height: 25,
-                  decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      border: Border.all(color: Colors.white, width: 1),
-                      borderRadius: BorderRadius.circular(100)),
-                  child: (likedByUsers.elementAt(likedByUsers.length-2).imageUrl != null)
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(100),
-                          child: CachedNetworkImage(
-                            fit: BoxFit.cover,
-                            imageUrl: likedByUsers.elementAt(likedByUsers.length-2).imageUrl!,
-                          ),
-                        )
-                      : ClipRRect(
-                          borderRadius: BorderRadius.circular(100),
-                          child: Image.asset(
-                            'assets/images/im_profile.png',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                ),
-                Transform.translate(
-                  offset: Offset(-8, 0),
-                  child: Container(
+          if (likedByUsers.length >= 2)
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                children: [
+                  Container(
                     width: 25,
                     height: 25,
                     decoration: BoxDecoration(
                         color: Colors.grey.shade300,
                         border: Border.all(color: Colors.white, width: 1),
                         borderRadius: BorderRadius.circular(100)),
-                    child: (likedByUsers.last.imageUrl != null)
+                    child: (likedByUsers
+                                .elementAt(likedByUsers.length - 2)
+                                .imageUrl !=
+                            null)
                         ? ClipRRect(
-                      borderRadius: BorderRadius.circular(100),
-                      child: CachedNetworkImage(
-                        fit: BoxFit.cover,
-                        imageUrl: likedByUsers.last.imageUrl!,
-                      ),
-                    )
+                            borderRadius: BorderRadius.circular(100),
+                            child: CachedNetworkImage(
+                              fit: BoxFit.cover,
+                              imageUrl: likedByUsers
+                                  .elementAt(likedByUsers.length - 2)
+                                  .imageUrl!,
+                            ),
+                          )
                         : ClipRRect(
-                      borderRadius: BorderRadius.circular(100),
-                      child: Image.asset(
-                        'assets/images/im_profile.png',
-                        fit: BoxFit.cover,
-                      ),
+                            borderRadius: BorderRadius.circular(100),
+                            child: Image.asset(
+                              'assets/images/im_profile.png',
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                  ),
+                  Transform.translate(
+                    offset: Offset(-8, 0),
+                    child: Container(
+                      width: 25,
+                      height: 25,
+                      decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          border: Border.all(color: Colors.white, width: 1),
+                          borderRadius: BorderRadius.circular(100)),
+                      child: (likedByUsers.last.imageUrl != null)
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(100),
+                              child: CachedNetworkImage(
+                                fit: BoxFit.cover,
+                                imageUrl: likedByUsers.last.imageUrl!,
+                              ),
+                            )
+                          : ClipRRect(
+                              borderRadius: BorderRadius.circular(100),
+                              child: Image.asset(
+                                'assets/images/im_profile.png',
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                     ),
                   ),
-                ),
-                Text(
-                  "...${post.likedCount} likes",
-                  style: const TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15),
-                ),
-              ],
+                  Text(
+                    "...${post.likedCount} likes",
+                    style: const TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15),
+                  ),
+                ],
+              ),
             ),
-          ),
 
           /// Liked By
           if (likedByUsers.isNotEmpty)
@@ -313,5 +324,19 @@ class _FeedWidgetState extends State<FeedWidget> {
         ],
       ),
     );
+  }
+
+  /// Will pop
+  Future<bool> onWillPop() {
+    DateTime now = DateTime.now();
+    if (currentBackPressTime == null ||
+        now.difference(currentBackPressTime!) > Duration(seconds: 2)) {
+      setState(() {
+        currentBackPressTime = now;
+      });
+
+      return Future.value(true);
+    }
+    return Future.value(false);
   }
 }

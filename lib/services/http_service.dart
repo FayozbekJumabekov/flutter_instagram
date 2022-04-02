@@ -1,5 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:http/http.dart' as http;
+
 
 class Network {
   /// Set isTester ///
@@ -41,6 +46,17 @@ class Network {
     }
     return null;
   }
+
+ static Future<void> sharePost(String content, String imgUrl) async {
+    final url = Uri.parse(imgUrl);
+    final response = await http.get(url);
+    final bytes = response.bodyBytes;
+    final temp = await getTemporaryDirectory();
+    final path = "${temp.path}/image.jpg";
+    File(path).writeAsBytesSync(bytes);
+    await Share.shareFiles([path], text: content);
+  }
+
 
   static Map<String, dynamic> paramCreateFollow(
       String fcm_token, String username, String someoneName) {

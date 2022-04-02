@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instagram/models/user_model.dart';
 import 'package:flutter_instagram/views/shimmer_anim.dart';
@@ -38,7 +37,7 @@ class _DetailPageWidgetState extends State<DetailPageWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.46,
+      height: MediaQuery.of(context).size.height * 0.3,
       child: SingleChildScrollView(
         physics: NeverScrollableScrollPhysics(),
         child: Column(
@@ -163,23 +162,7 @@ class _DetailPageWidgetState extends State<DetailPageWidget> {
                     height: 1,
                   ),
 
-                  /// # Profile details
-                  const Text.rich(TextSpan(
-                      text: "Digital goodies designer ",
-                      style:
-                          TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
-                      children: [
-                        TextSpan(
-                            text: "@pixsellz",
-                            style: TextStyle(color: Colors.blue))
-                      ])),
-                  const SizedBox(
-                    height: 1,
-                  ),
-                  const Text(
-                    "Everything is designed.",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
-                  ),
+
                   const SizedBox(
                     height: 15,
                   ),
@@ -187,7 +170,7 @@ class _DetailPageWidgetState extends State<DetailPageWidget> {
                   /// #Edit Button
                   ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                          primary: Colors.white,
+                          primary: Colors.blue,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             side: BorderSide(
@@ -196,9 +179,9 @@ class _DetailPageWidgetState extends State<DetailPageWidget> {
                           )),
                       onPressed: () {},
                       child: Text(
-                        "Edit Profile",
+                        "Message",
                         style: TextStyle(
-                            color: Theme.of(context).textTheme.button?.color,
+                            color: Colors.white,
                             fontSize: 14,
                             fontWeight: FontWeight.w600),
                       )),

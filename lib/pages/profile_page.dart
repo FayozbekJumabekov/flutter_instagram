@@ -127,10 +127,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 Expanded(
                   child: TabBarView(
                     children: [
+                      /// Post
                       SizedBox(
                         width: MediaQuery.of(context).size.width,
                         child: GridView.builder(
-                          padding: EdgeInsets.symmetric(vertical: 2,horizontal: 2),
+                          padding:
+                              EdgeInsets.symmetric(vertical: 2, horizontal: 2),
                           itemCount: posts.length,
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
@@ -142,19 +144,23 @@ class _ProfilePageState extends State<ProfilePage> {
                               child: CachedNetworkImage(
                                 imageUrl: posts[index].postImage!,
                                 placeholder: (context, url) => const Image(
-                                  image: AssetImage('assets/images/im_placeholder.png'),
+                                  image: AssetImage(
+                                      'assets/images/im_placeholder.png'),
                                   fit: BoxFit.cover,
                                 ),
-                                errorWidget: (context, url, error) => Icon(Icons.error),
+                                errorWidget: (context, url, error) =>
+                                    Icon(Icons.error),
                               ),
                             );
                           },
                         ),
                       ),
+
+                      /// Tagged Posts
                       SizedBox(
                         width: MediaQuery.of(context).size.width,
                         child: GridView.builder(
-                          itemCount: 7,
+                          itemCount: posts.length,
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                                   mainAxisSpacing: 1,
@@ -162,7 +168,16 @@ class _ProfilePageState extends State<ProfilePage> {
                                   crossAxisCount: 2),
                           itemBuilder: (BuildContext context, int index) {
                             return Container(
-                              color: Colors.grey.shade300,
+                              child: CachedNetworkImage(
+                                imageUrl: posts[index].postImage!,
+                                placeholder: (context, url) => const Image(
+                                  image: AssetImage(
+                                      'assets/images/im_placeholder.png'),
+                                  fit: BoxFit.cover,
+                                ),
+                                errorWidget: (context, url, error) =>
+                                    Icon(Icons.error),
+                              ),
                             );
                           },
                         ),
