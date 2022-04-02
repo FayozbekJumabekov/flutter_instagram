@@ -20,7 +20,7 @@ class FeedWidget extends StatefulWidget {
 
 class _FeedWidgetState extends State<FeedWidget> {
   late Post post;
-  DateTime? currentBackPressTime;
+  DateTime? loginClickTime;
   bool isLoading = false;
   List<User> likedByUsers = [];
 
@@ -147,12 +147,15 @@ class _FeedWidgetState extends State<FeedWidget> {
                   if (!post.isMine)
                     IconButton(
                         onPressed: () {
-                          (post.isLiked)
-                              ? likePost(post, false)
-                              : likePost(post, true);
+                          if (isActiveClick(DateTime.now())) {
+                            (post.isLiked)
+                                ? likePost(post, false)
+                                : likePost(post, true);
+                            return;
+                          }
                         },
                         icon: (post.isLiked)
-                            ? Icon(
+                            ? const Icon(
                                 FontAwesomeIcons.solidHeart,
                                 color: Colors.red,
                               )
@@ -170,7 +173,7 @@ class _FeedWidgetState extends State<FeedWidget> {
                   // Share button
                   IconButton(
                       onPressed: () async {
-                       await Network.sharePost(post.caption!, post.postImage!);
+                        await Network.sharePost(post.caption!, post.postImage!);
                       },
                       icon: const Icon(
                         CupertinoIcons.paperplane_fill,
@@ -326,17 +329,19 @@ class _FeedWidgetState extends State<FeedWidget> {
     );
   }
 
-  /// Will pop
-  Future<bool> onWillPop() {
-    DateTime now = DateTime.now();
-    if (currentBackPressTime == null ||
-        now.difference(currentBackPressTime!) > Duration(seconds: 2)) {
-      setState(() {
-        currentBackPressTime = now;
-      });
-
-      return Future.value(true);
+  bool isActiveClick(DateTime currentTime) {
+    if (loginClickTime == null) {
+      loginClickTime = currentTime;
+      print("first click");
+      return true;
     }
-    return Future.value(false);
+    print('diff is ${currentTime.difference(loginClickTime!).inSeconds}');
+    if (currentTime.difference(loginClickTime!).inSeconds < 4) {
+      //set this difference time in seconds
+      return false;
+    }
+
+    loginClickTime = currentTime;
+    return true;
   }
 }
