@@ -30,7 +30,7 @@ class WidgetCatalog {
             title: Text(title),
             content: Text(content),
             actions: [
-              TextButton(onPressed: onTapNo, child: const Text("Cancel")),
+              TextButton(onPressed: (){Navigator.pop(context);}, child: const Text("Cancel")),
               TextButton(onPressed: onTapYes, child: const Text("Confirm"))
             ],
           );

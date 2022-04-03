@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instagram/models/user_model.dart';
 import 'package:flutter_instagram/views/shimmer_anim.dart';
 
+import '../services/firestore_service.dart';
+
 class DetailPageWidget extends StatefulWidget {
   User? user;
+  bool? isFollowed;
 
-  DetailPageWidget({required this.user, Key? key}) : super(key: key);
+  DetailPageWidget({required this.user,this.isFollowed, Key? key}) : super(key: key);
 
   @override
   State<DetailPageWidget> createState() => _DetailPageWidgetState();
@@ -15,10 +18,34 @@ class DetailPageWidget extends StatefulWidget {
 class _DetailPageWidgetState extends State<DetailPageWidget> {
   bool isLoading = true;
   User? user;
+  bool? isFollowed;
+  /// Follow
+  Future<void> followUser(User user) async {
+
+    FireStoreService.followUser(user).then((value) {
+      setState(() {
+        user.followed = true;
+        isFollowed = true;
+      });
+    });
+    await FireStoreService.storePostsToMyFeed(user);
+  }
+
+  /// UnFollow
+  Future<void> unFollowUser(User user) async {
+    setState(() {
+      user.followed = false;
+      isFollowed = false;
+    });
+    FireStoreService.unFollowUser(user).then((value) {
+    });
+    await FireStoreService.removePostsFromMyFeed(user);
+  }
 
   void getUser() {
     setState(() {
       user = widget.user;
+      isFollowed = widget.isFollowed;
     });
   }
 
@@ -64,10 +91,7 @@ class _DetailPageWidgetState extends State<DetailPageWidget> {
                                   imageUrl: user!.imageUrl!,
                                 ),
                               )
-                            : Icon(
-                                Icons.add,
-                                color: Colors.black,
-                              ),
+                            : SizedBox.shrink(),
                       ),
                       title: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -173,14 +197,16 @@ class _DetailPageWidgetState extends State<DetailPageWidget> {
                           primary: Colors.blue,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
-                            side: BorderSide(
+                            side: const BorderSide(
                                 color: Color.fromRGBO(60, 60, 67, 0.18)),
                             borderRadius: BorderRadius.circular(5),
                           )),
-                      onPressed: () {},
+                      onPressed: () {
+                        (isFollowed!) ? unFollowUser(user!) : followUser(user!);
+                      },
                       child: Text(
-                        "Message",
-                        style: TextStyle(
+                        (isFollowed!)? "Unfollow":"Follow",
+                        style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
                             fontWeight: FontWeight.w600),

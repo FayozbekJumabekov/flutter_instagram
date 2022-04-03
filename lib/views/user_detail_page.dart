@@ -8,8 +8,8 @@ import '../views/glow_widget.dart';
 
 class DetailPage extends StatefulWidget {
   User user;
-
-  DetailPage({required this.user, Key? key}) : super(key: key);
+  bool? isFollowed;
+  DetailPage({required this.user, this.isFollowed, Key? key}) : super(key: key);
 
   @override
   _DetailPageState createState() => _DetailPageState();
@@ -74,6 +74,7 @@ class _DetailPageState extends State<DetailPage> {
                     delegate: SliverChildListDelegate([
                   DetailPageWidget(
                     user: widget.user,
+                    isFollowed: widget.isFollowed,
                   ),
                 ]))
               ];

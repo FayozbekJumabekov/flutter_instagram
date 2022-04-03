@@ -83,8 +83,9 @@ class FireStoreService {
   static Future<Post> storePost(Post post) async {
     // filled post
     User me = await loadUser();
-    // me.postCount = me.postCount +1;
-    // await updateUser(me);
+    me.postCount = me.postCount + 1;
+    Log.w(me.postCount.toString());
+    await updateUser(me);
     post.uid = me.uid;
     post.fullName = me.fullName;
     post.profileImage = me.imageUrl;
@@ -159,6 +160,7 @@ class FireStoreService {
 
     return posts;
   }
+
   static Future<List<Post>> loadSomeonesPosts(User user) async {
     List<Post> posts = [];
     var querySnapshot = await instance
@@ -173,7 +175,6 @@ class FireStoreService {
 
     return posts;
   }
-
 
   static Future<List<Post>> loadAllPosts() async {
     List<Post> posts = [];
@@ -220,7 +221,9 @@ class FireStoreService {
       await methodLikeSomeones(user, post, isLiked);
     }
     post.isLiked = !post.isLiked;
-    Network.POST(Network.paramCreateLike(post.device_token, user.fullName!, post.fullName!)).then((value){
+    Network.POST(Network.paramCreateLike(
+            post.device_token, user.fullName!, post.fullName!))
+        .then((value) {
       Log.i("Notif response : $value");
     });
     return post;
@@ -304,7 +307,9 @@ class FireStoreService {
         .collection(followerFolder)
         .doc(me.uid)
         .set(me.toJson());
-    Network.POST(Network.paramCreateFollow(someone.device_token, me.fullName!, someone.fullName!)).then((value){
+    Network.POST(Network.paramCreateFollow(
+            someone.device_token, me.fullName!, someone.fullName!))
+        .then((value) {
       Log.i("Notif response : $value");
     });
 
@@ -369,19 +374,70 @@ class FireStoreService {
     }
 
     for (Post post in posts) {
-      removeFeed(post);
+      removeMyPost(post);
     }
     Log.w("Removed Feed Done");
   }
 
-  static Future removeFeed(Post post) async {
+  /// Remove My Posts
+  static Future removeMyPost(Post post) async {
     String uid = (await Prefs.load(StorageKeys.UID))!;
 
-    return await instance
+    /// Remove Post My Feed
+    await instance
         .collection(usersFolder)
         .doc(uid)
         .collection(feedsFolder)
         .doc(post.id)
         .delete();
+
+    if (post.uid == uid) {
+      User me = await loadUser();
+      me.postCount = me.postCount - 1;
+      updateUser(me);
+      await instance
+          .collection(usersFolder)
+          .doc(uid)
+          .collection(postsFolder)
+          .doc(post.id)
+          .delete();
+      await instance.collection(allPostsFolder).doc(post.id).delete();
+
+    }
+
   }
+  static Future updatePostsToFollowersFeed(User me) async {
+    // Store someone's posts to my feed
+    List<String> userUids = [];
+    var querySnapshot = await instance
+        .collection(usersFolder)
+        .doc(me.uid)
+        .collection(followerFolder)
+        .get();
+
+    for (var element in querySnapshot.docs) {
+      User follower = User.fromJson(element.data());
+      userUids.add(follower.uid!);
+    }
+    for (String follower in userUids) {
+      var querySnapshot = await instance
+          .collection(usersFolder)
+          .doc(follower)
+          .collection(feedsFolder)
+          .where("uid", isEqualTo: me.uid)
+          .get();
+      for (var element in querySnapshot.docs) {
+        Post post = Post.fromJson(element.data());
+        post.profileImage = me.imageUrl;
+        post.fullName = me.fullName;
+        await instance
+            .collection(usersFolder)
+            .doc(follower)
+            .collection(feedsFolder)
+            .doc(post.id)
+            .update(post.toJson());
+      }
+    }
+  }
+
 }

@@ -82,10 +82,7 @@ class _UploadPageState extends State<UploadPage> {
       isLoading = false;
     });
     widget.pageController.jumpToPage(0);
-    User me = await FireStoreService.loadUser();
-    me.postCount = me.postCount + 1;
-    Log.w(me.postCount.toString());
-    await FireStoreService.updateUser(me);
+
   }
 
   @override

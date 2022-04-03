@@ -80,7 +80,7 @@ class _FeedPageState extends State<FeedPage> {
                           shrinkWrap: true,
                           physics: NeverScrollableScrollPhysics(),
                           itemBuilder: (context, index) {
-                            return FeedWidget(post: posts[index]);
+                            return FeedWidget(post: posts[index],load:apiLoadPosts ,);
                           })
                     ],
                   ),

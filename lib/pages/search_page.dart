@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_instagram/models/post_model.dart';
 import 'package:flutter_instagram/models/user_model.dart';
 import 'package:flutter_instagram/services/firestore_service.dart';
-import 'package:flutter_instagram/views/detail_page.dart';
+import 'package:flutter_instagram/views/user_detail_page.dart';
+import 'package:flutter_instagram/views/image_detail.dart';
 import 'package:flutter_instagram/views/widget_catalog.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../views/glow_widget.dart';
@@ -20,6 +21,7 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   TextEditingController textEditingController = TextEditingController();
   bool isLoading = false;
+  bool? isFollowed;
   List<User> users = [];
   List<Post> posts = [];
 
@@ -141,15 +143,41 @@ class _SearchPageState extends State<SearchPage> {
                         crossAxisSpacing: 5,
                         mainAxisSpacing: 5,
                         itemBuilder: (context, index) {
-                          return ClipRRect(
-                            borderRadius: BorderRadius.circular(5),
-                            child: CachedNetworkImage(
-                              imageUrl: posts[index].postImage!,
-                              fit: BoxFit.cover,
-                              placeholder: (context, index) => const Image(
-                                fit: BoxFit.cover,
-                                image: AssetImage(
-                                    "assets/images/im_placeholder.png"),
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(PageRouteBuilder(
+                                  fullscreenDialog: true,
+                                  transitionDuration: Duration(milliseconds: 1000),
+                                  pageBuilder: (BuildContext context, Animation<double> animation,
+                                      Animation<double> secondaryAnimation) {
+                                    return ImageDetailPage(post: posts[index]);
+                                  },
+                                  transitionsBuilder: (BuildContext context,
+                                      Animation<double> animation,
+                                      Animation<double> secondaryAnimation,
+                                      Widget child) {
+                                    return FadeTransition(
+                                      opacity: CurvedAnimation(
+                                        parent: animation,
+                                        curve: Curves.elasticInOut,
+                                      ),
+                                      child: child,
+                                    );
+                                  }));
+                            },
+                            child: Hero(
+                              tag: posts[index].id!,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(5),
+                                child: CachedNetworkImage(
+                                  imageUrl: posts[index].postImage!,
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, index) => const Image(
+                                    fit: BoxFit.cover,
+                                    image: AssetImage(
+                                        "assets/images/im_placeholder.png"),
+                                  ),
+                                ),
                               ),
                             ),
                           );
@@ -173,7 +201,7 @@ class _SearchPageState extends State<SearchPage> {
   Widget usersListTile(User user) {
     return GestureDetector(
       onTap: (){
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>DetailPage(user: user)));
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>DetailPage(user: user,isFollowed: user.followed,)));
       },
       child: ListTile(
         leading: Container(

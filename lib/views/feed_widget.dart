@@ -7,12 +7,15 @@ import 'package:flutter_instagram/models/post_model.dart';
 import 'package:flutter_instagram/models/user_model.dart';
 import 'package:flutter_instagram/services/firestore_service.dart';
 import 'package:flutter_instagram/services/http_service.dart';
+import 'package:flutter_instagram/views/widget_catalog.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class FeedWidget extends StatefulWidget {
   Post post;
+  final Function? load;
 
-  FeedWidget({required this.post, Key? key}) : super(key: key);
+  FeedWidget({required this.post, required this.load, Key? key})
+      : super(key: key);
 
   @override
   State<FeedWidget> createState() => _FeedWidgetState();
@@ -33,6 +36,12 @@ class _FeedWidgetState extends State<FeedWidget> {
         getDataFromParentWidget();
         isLoading = false;
       });
+    });
+  }
+
+  void removePost(Post post) {
+    FireStoreService.removeMyPost(post).then((value) {
+      widget.load!();
     });
   }
 
@@ -105,10 +114,16 @@ class _FeedWidgetState extends State<FeedWidget> {
                     color: Colors.black,
                     fontWeight: FontWeight.bold),
               ),
-              trailing: const Icon(
-                FontAwesomeIcons.ellipsisV,
-                color: Colors.black,
-                size: 18,
+              trailing: IconButton(
+                onPressed: () {
+                  buildShowModalBottomSheet(context, post);
+                },
+                padding: const EdgeInsets.only(left: 20),
+                icon: const Icon(
+                  FontAwesomeIcons.ellipsisV,
+                  color: Colors.black,
+                  size: 18,
+                ),
               ),
             ),
           ),
@@ -129,8 +144,8 @@ class _FeedWidgetState extends State<FeedWidget> {
                 errorWidget: (context, url, error) => Icon(Icons.error),
               ),
               if (isLoading)
-                CupertinoActivityIndicator(
-                  radius: 20,
+                const CupertinoActivityIndicator(
+                  radius: 30,
                   color: Colors.blue,
                 )
             ],
@@ -138,56 +153,52 @@ class _FeedWidgetState extends State<FeedWidget> {
 
           /// Buttons Row
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  // Like button
-                  if (!post.isMine)
-                    IconButton(
-                        onPressed: () {
-                          if (isActiveClick(DateTime.now())) {
-                            (post.isLiked)
-                                ? likePost(post, false)
-                                : likePost(post, true);
-                            return;
-                          }
-                        },
-                        icon: (post.isLiked)
-                            ? const Icon(
-                                FontAwesomeIcons.solidHeart,
-                                color: Colors.red,
-                              )
-                            : Icon(
-                                FontAwesomeIcons.heart,
-                                color: Colors.black,
-                              )),
-                  // Comment button
-                  IconButton(
-                      onPressed: () {},
-                      icon: const Icon(
-                        FontAwesomeIcons.comment,
-                        color: Colors.black,
-                      )),
-                  // Share button
-                  IconButton(
-                      onPressed: () async {
-                        await Network.sharePost(post.caption!, post.postImage!);
-                      },
-                      icon: const Icon(
-                        CupertinoIcons.paperplane_fill,
-                        color: Colors.black,
-                      )),
-                ],
-              ),
+              // Like button
+              if (!post.isMine)
+                IconButton(
+                    onPressed: () {
+                      if (isActiveClick(DateTime.now())) {
+                        (post.isLiked)
+                            ? likePost(post, false)
+                            : likePost(post, true);
+                        return;
+                      }
+                    },
+                    icon: (post.isLiked)
+                        ? const Icon(
+                      FontAwesomeIcons.solidHeart,
+                      color: Colors.red,
+                    )
+                        : Icon(
+                      FontAwesomeIcons.heart,
+                      color: Colors.black,
+                    )),
+              // Comment button
               IconButton(
-                color: Colors.black,
-                icon: const Icon(
-                  FontAwesomeIcons.bookmark,
-                ),
-                onPressed: () {},
-              ),
+                  onPressed: () {},
+                  icon: const Icon(
+                    FontAwesomeIcons.comment,
+                    color: Colors.black,
+                  )),
+              // Share button
+              IconButton(
+                  onPressed: () async {
+                    setState(() {
+                      isLoading = true;
+                    });
+                    await Network.sharePost(post.caption!, post.postImage!)
+                        .then((value) {
+                      setState(() {
+                        isLoading = false;
+                      });
+                    });
+                  },
+                  icon: const Icon(
+                    CupertinoIcons.paperplane_fill,
+                    color: Colors.black,
+                  )),
             ],
           ),
 
@@ -343,5 +354,52 @@ class _FeedWidgetState extends State<FeedWidget> {
 
     loginClickTime = currentTime;
     return true;
+  }
+
+  /// BottomSheet
+  Future<dynamic> buildShowModalBottomSheet(BuildContext context, Post post) {
+    return showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return SafeArea(
+            child: Wrap(children: [
+              const SizedBox(
+                height: 10,
+              ),
+
+              /// Share
+              ListTile(
+                  leading: Icon(FontAwesomeIcons.share),
+                  title: Text(
+                    'Share Posts',
+                    style: TextStyle(color: Colors.grey.shade700),
+                  ),
+                  onTap: () async {
+                    setState(() {
+                      isLoading = true;
+                    });
+                    await Network.sharePost(post.caption!, post.postImage!)
+                        .then((value) {
+                      setState(() {
+                        isLoading = false;
+                      });
+                      Navigator.of(context).pop();
+                    });
+                  }),
+
+              /// Remove Photo
+              ListTile(
+                  leading: const Icon(FontAwesomeIcons.trash),
+                  title: Text(
+                    (post.isMine) ? "Remove Post" : "Hide Post",
+                    style: TextStyle(color: Colors.grey.shade700),
+                  ),
+                  onTap: () {
+                    removePost(post);
+                    Navigator.of(context).pop();
+                  }),
+            ]),
+          );
+        });
   }
 }

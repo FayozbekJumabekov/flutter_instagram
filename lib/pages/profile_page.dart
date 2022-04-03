@@ -60,7 +60,7 @@ class _ProfilePageState extends State<ProfilePage> {
               children: [
                 Text(
                   (user != null) ? user!.email! : '',
-                  style: TextStyle(
+                  style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.black),
