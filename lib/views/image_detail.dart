@@ -5,6 +5,8 @@ import 'package:flutter_instagram/models/post_model.dart';
 import 'package:flutter_instagram/models/user_model.dart';
 import 'package:flutter_instagram/services/firestore_service.dart';
 import 'package:flutter_instagram/services/http_service.dart';
+import 'package:flutter_instagram/services/log_service.dart';
+import 'package:flutter_instagram/services/prefs_service.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'user_detail_page.dart';
@@ -24,7 +26,9 @@ class _ImageDetailPageState extends State<ImageDetailPage> {
   bool isLoading = false;
   bool? isFollowed;
   late User user;
+  late String myUid;
   List<User> likedByUsers = [];
+  List<String?> following = [];
 
   void likePost(Post post, bool isLiked) async {
     setState(() {
@@ -38,38 +42,53 @@ class _ImageDetailPageState extends State<ImageDetailPage> {
     });
   }
 
+
+  void getAllData(){
+    loadUser().then((value){
+      followingCondition();
+    });
+  }
   Future<User> loadUser() async {
+    String myProfUId =(await Prefs.load(StorageKeys.UID))!;
     var value = await FireStoreService.instance
         .collection(FireStoreService.usersFolder)
         .doc(post.uid)
         .get();
     setState(() {
+      myUid = myProfUId;
       user = User.fromJson(value.data()!);
     });
     return User.fromJson(value.data()!);
   }
 
   Future<bool> followingCondition() async {
-    List<String?> following = [];
+    String uid = (await Prefs.load(StorageKeys.UID))!;
+
     var querySnapshot2 = await FireStoreService.instance
         .collection(FireStoreService.usersFolder)
-        .doc(post.uid)
+        .doc(uid)
         .collection(FireStoreService.followingFolder)
         .get();
     for (var result in querySnapshot2.docs) {
-      following.add(User.fromJson(result.data()).uid);
+      setState(() {
+        following.add(User.fromJson(result.data()).uid);
+        Log.d(following.length.toString() + following.first!);
+      });
     }
 
     if (following.contains(post.uid)) {
       setState(() {
         isFollowed = true;
       });
+      Log.e("Post "+post.uid!);
+      Log.e(isFollowed.toString());
       return true;
     } else {
       setState(() {
         isFollowed = false;
       });
-
+      Log.e("Post "+post.uid!);
+      Log.e(isFollowed.toString());
       return false;
     }
   }
@@ -91,8 +110,7 @@ class _ImageDetailPageState extends State<ImageDetailPage> {
   void initState() {
     super.initState();
     getDataFromParentWidget();
-    loadUser();
-    followingCondition();
+    getAllData();
   }
 
   @override
@@ -113,10 +131,12 @@ class _ImageDetailPageState extends State<ImageDetailPage> {
                 /// Header
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(
+                    if(myUid != user.uid) {
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => DetailPage(user: user, isFollowed: isFollowed!,)));
+                    }
                   },
                   child: Container(
                     color: Theme.of(context).scaffoldBackgroundColor,

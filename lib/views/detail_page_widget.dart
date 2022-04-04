@@ -18,6 +18,8 @@ class DetailPageWidget extends StatefulWidget {
 class _DetailPageWidgetState extends State<DetailPageWidget> {
   bool isLoading = true;
   User? user;
+  DateTime? loginClickTime;
+
   bool? isFollowed;
   /// Follow
   Future<void> followUser(User user) async {
@@ -202,7 +204,9 @@ class _DetailPageWidgetState extends State<DetailPageWidget> {
                             borderRadius: BorderRadius.circular(5),
                           )),
                       onPressed: () {
-                        (isFollowed!) ? unFollowUser(user!) : followUser(user!);
+                        if(isActiveClick(DateTime.now())){
+                          (isFollowed!) ? unFollowUser(user!) : followUser(user!);
+                        }
                       },
                       child: Text(
                         (isFollowed!)? "Unfollow":"Follow",
@@ -218,6 +222,21 @@ class _DetailPageWidgetState extends State<DetailPageWidget> {
         ),
       ),
     );
+  }
+  bool isActiveClick(DateTime currentTime) {
+    if (loginClickTime == null) {
+      loginClickTime = currentTime;
+      print("first click");
+      return true;
+    }
+    print('diff is ${currentTime.difference(loginClickTime!).inSeconds}');
+    if (currentTime.difference(loginClickTime!).inSeconds < 4) {
+      //set this difference time in seconds
+      return false;
+    }
+
+    loginClickTime = currentTime;
+    return true;
   }
 
 

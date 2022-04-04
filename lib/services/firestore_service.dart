@@ -101,7 +101,8 @@ class FireStoreService {
         .id;
     post.id = postId;
     // Store to All post for Search page
-    await instance.collection(allPostsFolder).doc(postId).set(post.toJson());
+   await storePostForAll(post, postId);
+
     // Store to users posts
     await instance
         .collection(usersFolder)
@@ -111,6 +112,12 @@ class FireStoreService {
         .set(post.toJson());
     return post;
   }
+  static Future<void> storePostForAll(Post post,String postId) async {
+    post.isMine = true;
+    // Store to All post for Search page
+    await instance.collection(allPostsFolder).doc(postId).set(post.toJson());
+  }
+
 
   static Future<Post> storeFeed(Post post) async {
     String uid = (await Prefs.load(StorageKeys.UID))!;
@@ -200,6 +207,8 @@ class FireStoreService {
       post.likedCount = post.likedCount - 1;
       post.likedByUsers.removeWhere((element) => (element['uid'] == user.uid));
     }
+
+
     // Update my liked Feed post
     await instance
         .collection(usersFolder)
@@ -231,7 +240,7 @@ class FireStoreService {
 
   static Future<void> methodLikeSomeones(
       User user, Post post, bool isLiked) async {
-    post.isLiked = !isLiked;
+    await storePostForAll(post, post.id!);
 
     // Update someones liked Feed post
     await instance
